@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('wcsClientApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+define(['underscore', 'app'],
+	   function(_, app)
+{
+	app.controller('MainCtrl', function ($scope, $http, $log) {
+		$scope.coolData =
+			[{name: 'cat', href: 'images/cat.jpg'}];
+	});
+});

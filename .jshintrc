@@ -7,7 +7,7 @@
   "curly": true,
   "eqeqeq": true,
   "immed": true,
-  "indent": 2,
+  "indent": 4,
   "latedef": true,
   "newcap": true,
   "noarg": true,
@@ -18,7 +18,10 @@
   "strict": true,
   "trailing": true,
   "smarttabs": true,
+  "unused": "vars",
   "globals": {
-    "angular": false
+    "angular": true,
+    "define": true,
+    "ActiveXObject": true
   }
 }

@@ -1,56 +1,74 @@
 // Karma configuration
-// http://karma-runner.github.io/0.10/config/configuration-file.html
+// Generated on Tue Jan 07 2014 17:53:52 GMT+1100 (VLAT)
 
 module.exports = function(config) {
-  config.set({
-    // base path, that will be used to resolve files and exclude
-    basePath: '',
+	config.set({
+		// base path, that will be used to resolve files and exclude
+		basePath: '',
 
-    // testing framework to use (jasmine/mocha/qunit/...)
-    frameworks: ['jasmine'],
+		// frameworks to use
+		frameworks: ['jasmine', 'requirejs'],
 
-    // list of files / patterns to load in the browser
-    files: [
-      'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/angular-resource/angular-resource.js',
-      'app/bower_components/angular-cookies/angular-cookies.js',
-      'app/bower_components/angular-sanitize/angular-sanitize.js',
-      'app/bower_components/angular-route/angular-route.js',
-      'app/scripts/*.js',
-      'app/scripts/**/*.js',
-      'test/mock/**/*.js',
-      'test/spec/**/*.js'
-    ],
+		files: [
+			/* loaded into browser */
+			{pattern: 'app/bower_components/angular/angular.js', included: true},
+			{pattern: 'app/bower_components/angular-mocks/angular-mocks.js', included: true},
+			{pattern: 'app/amd-modules.js', included: true},
+			{pattern: 'test/test-main.js', included: true},
+			/* served by server, loaded by requirejs */
+			{pattern: 'app/**/*.js', included: false},
+			{pattern: 'app/*.js', included: false},
+			{pattern: 'test/**/**.xml', included: false},
+			{pattern: 'test/**/*.js', included: false},
+			{pattern: 'test/*.js', included: false},
+		],
 
-    // list of files / patterns to exclude
-    exclude: [],
+		preprocessors: {
+			'app/scripts/*.js': 'coverage',
+			'app/scripts/**/*.js': 'coverage'
+		},
 
-    // web server port
-    port: 8080,
+		coverageReporter: {
+			type : 'text',
+			dir : 'coverage/',
+			file : 'coverage.txt',
+			color: false
+		},
 
-    // level of logging
-    // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_INFO,
+		// test results reporter to use
+		// possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+		reporters: ['progress', 'coverage'],
 
+		// web server port
+		port: 9876,
 
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+		// enable / disable colors in the output (reporters and logs)
+		colors: true,
 
+		// level of logging
+		// possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+		logLevel: config.LOG_INFO,
 
-    // Start these browsers, currently available:
-    // - Chrome
-    // - ChromeCanary
-    // - Firefox
-    // - Opera
-    // - Safari (only Mac)
-    // - PhantomJS
-    // - IE (only Windows)
-    browsers: ['Chrome'],
+		// enable / disable watching file and executing tests whenever any file changes
+		autoWatch: false,
 
+		// Start these browsers, currently available:
+		// - Chrome
+		// - ChromeCanary
+		// - Firefox
+		// - Opera (has to be installed with `npm install karma-opera-launcher`)
+		// - Safari (only Mac; has to be installed with `npm install karma-safari-launcher`)
+		// - PhantomJS
+		// - IE (only Windows; has to be installed with `npm install karma-ie-launcher`)
+		browsers: ['PhantomJS'],
 
-    // Continuous Integration mode
-    // if true, it capture browsers, run tests and exit
-    singleRun: false
-  });
+		// If browser does not capture in given timeout [ms], kill it
+		captureTimeout: 60000,
+
+		// Continuous Integration mode
+		// if true, it capture browsers, run tests and exit
+		autoWatch: true,
+
+		singleRun: false
+	});
 };
