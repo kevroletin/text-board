@@ -1,10 +1,30 @@
-<h1 id="title">Cool image board</h1>
-
-<div ng-repeat="image in coolData">
-  <h2>{{image.name}}</h2>
-  <img ng-src="{{image.href}}">
+<a href="" ng-click="showForm = !showForm">Make post</a>
+<div ng-show="showForm">
+  <table>
+	<tr><td>Title here:</td>
+	    <td><input ng-model="new.title" placeholder="^_^"></input></td>
+    <tr></tr>
+	    <td>Text here:</td>
+	    <td><input ng-model="new.text" placeholder="bla bla"></input></td>
+    <tr></tr>
+	    <td>Code here:</td>
+		<td><input ng-model="new.code" placeholder="++i"></input></td>
+    <tr></tr>
+	    <td>Image here:</td>
+		<td><input ng-model="new.img" placeholder="http://pic.jpg"></input></td>
+    <tr></tr>
+		<td></td>
+	    <td><button ng-click="addNewPost()">Show to friends!</button></td>
+	</tr>
+  </table>
 </div>
 
-<pre>
-{{coolData}}
-</pre>
+<hr ng-repeat-start="x in posts | orderBy:'i':true">
+<div ng-repeat-end>
+  <button ng-click="deletePost(x)" style="float: right">X</button>
+  <h2>{{x.title | withDefault:'^_^'}}</h2>
+  <p ng-if="x.text">{{x.text}}</p>
+  <pre ng-if="x.code">{{x.code}}</pre>
+  <img ng-if="x.img"
+	   ng-src="x.img"></img>
+</div>

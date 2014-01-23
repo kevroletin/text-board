@@ -4,13 +4,16 @@ define(['angular',
 		'angular-route',
 		'angular-resource',
 		'angular-cookies',
-		'angular-sanitize'],
+		'angular-sanitize',
+		'angular-firebase-collection'],
 function(angular) {
 	return angular.module('App', [
 		'ngCookies',
 		'ngResource',
 		'ngSanitize',
-		'ngRoute'
+		'ngRoute',
+		'firebase',
+		'ng-firebase'
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
