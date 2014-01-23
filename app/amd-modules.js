@@ -15,7 +15,11 @@ require.config({
 		'angular-route': 'bower_components/angular-route/angular-route',
 		'angular-resource': 'bower_components/angular-resource/angular-resource',
 		'angular-cookies': 'bower_components/angular-cookies/angular-cookies',
-		'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize'
+		'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize',
+		'firebase': 'bower_components/firebase/firebase',
+		'angularfire': 'bower_components/angularfire/angularfire',
+		'angular-firebase-bindings': 'bower_components/angular-firebase/ng-firebase-binding',
+		'angular-firebase-collections': 'bower_components/angular-firebase/ng-firebase-collections',
 	},
 
 	shim: {
@@ -32,6 +36,15 @@ require.config({
 		},
 		underscore: {
 			exports: '_'
+		},
+		'angularfire': {
+			deps: ['angular', 'firebase']
+		},
+		'angular-firebase-bindings': {
+			deps: ['angular', 'firebase', 'bower_components/angular-firebase/ng-firebase']
+		},
+		'angular-firebase-collections': {
+			deps: ['angular', 'firebase', 'bower_components/angular-firebase/ng-firebase']
 		}
 	}
 });

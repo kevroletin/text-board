@@ -1,23 +1,26 @@
 {
-	"name": "wcs-client",
-	"version": "0.0.0",
-	"dependencies": {
-		"json3": "~3.2.6",
-		"es5-shim": "~2.1.0",
-		"jquery": "~1.10.2",
-		"bootstrap": "~3.0.3",
-		"angular": "1.2.6",
-		"angular-resource": "1.2.6",
-		"angular-cookies": "1.2.6",
-		"angular-sanitize": "1.2.6",
-		"angular-route": "1.2.6",
-		"underscore": "latest",
-		"requirejs": "latest",
-		"requirejs-domready": "latest",
-		"requirejs-text": "latest"
-	},
-	"devDependencies": {
-		"chai": "latest",
-		"angular-mocks": "~1.2.9"
-	}
+  "name": "wcs-client",
+  "version": "0.0.0",
+  "dependencies": {
+    "json3": "~3.2.6",
+    "es5-shim": "~2.1.0",
+    "jquery": "~1.10.2",
+    "bootstrap": "~3.0.3",
+    "angular": "1.2.6",
+    "angular-resource": "~1.2",
+    "angular-cookies": "~1.2",
+    "angular-sanitize": "~1.2",
+    "angular-route": "~1.2",
+    "underscore": "latest",
+    "requirejs": "latest",
+    "requirejs-domready": "latest",
+    "requirejs-text": "latest",
+    "angular-firebase": "~0.0.2",
+    "firebase": "~1.0.2",
+    "angularfire": "~0.6.0"
+  },
+  "devDependencies": {
+    "chai": "latest",
+    "angular-mocks": "~1.2"
+  }
 }

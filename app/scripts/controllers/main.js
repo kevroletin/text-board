@@ -1,6 +1,6 @@
 'use strict';
 
-define(['underscore', 'app'],
+define(['underscore', 'app', 'angularfire'],
 	   function(_, app)
 {
 	app.controller('MainCtrl', function ($scope, $http, $log) {
