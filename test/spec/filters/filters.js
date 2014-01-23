@@ -5,7 +5,7 @@ define(['app-filters'], function() {
 		var joinBy;
 
 		beforeEach(function() {
-			module('wcsClientApp');
+			module('App');
 			inject(function(joinByFilter) {
 				joinBy = joinByFilter;
 			});

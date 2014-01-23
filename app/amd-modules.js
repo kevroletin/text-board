@@ -38,6 +38,9 @@ require.config({
 		underscore: {
 			exports: '_'
 		},
+		'firebase': {
+			exports: 'Firebase'
+		},
 		'angularfire': {
 			deps: ['angular', 'firebase']
 		},
