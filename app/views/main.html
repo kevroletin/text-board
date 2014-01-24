@@ -1,6 +1,7 @@
 <a href="" ng-click="showForm = !showForm">Make post</a>
 <div ng-show="showForm">
-  <table>
+  <form ng-submit="addNewPost()">
+	<table>
 	<tr><td>Title here:</td>
 	    <td><input ng-model="new.title" placeholder="^_^"></input></td>
     <tr></tr>
@@ -14,9 +15,9 @@
 		<td><input ng-model="new.img" placeholder="http://pic.jpg"></input></td>
     <tr></tr>
 		<td></td>
-	    <td><button ng-click="addNewPost()">Show to friends!</button></td>
-	</tr>
-  </table>
+	    <td><button>Show to friends!</button></td>
+	</tr></table>
+  </form>
 </div>
 
 <hr ng-repeat-start="x in posts | orderBy:'i':true">
