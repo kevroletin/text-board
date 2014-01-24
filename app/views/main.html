@@ -1,3 +1,4 @@
+
 <a href="" ng-click="showForm = !showForm">Make post</a>
 <div ng-show="showForm">
   <form ng-submit="addNewPost()">
@@ -6,7 +7,16 @@
 	    <td><input ng-model="new.title" placeholder="^_^"></input></td>
     <tr></tr>
 	    <td>Text here:</td>
-	    <td><input ng-model="new.text" placeholder="bla bla"></input></td>
+	    <td>
+		  <input ng-show="showEdit"
+				 ng-model="new.text"
+				 ng-focus="showEdit=false"
+				 placeholder="bla bla"></input>
+		  <textarea class="myMegaClass"
+					ng-hide="showEdit"
+					ng-model="new.text"
+					ng-blur="showEdit=true"></textarea>
+		</td>
     <tr></tr>
 	    <td>Code here:</td>
 		<td><input ng-model="new.code" placeholder="++i"></input></td>

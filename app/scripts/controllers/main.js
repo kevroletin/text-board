@@ -3,7 +3,18 @@
 define(['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
-	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, firebaseCollection) {
+	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, firebaseCollection) {
+
+		$scope.showEdit = true;
+		$scope.$watch('showEdit', function() {
+			if ( !$scope.showEdit ) {
+				var textArea = $document.find('.myMegaClass');
+				$timeout(function() {
+					textArea.focus();
+				});
+			}
+		});
+
 		$scope.showForm = true;
 		$scope.index = $firebase(new Firebase('https://picture-board.firebaseio.com/index'));
 		// TODO: init $scope.index
