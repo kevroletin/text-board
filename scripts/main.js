@@ -35264,7 +35264,10 @@ define("angularfire", ["angular","firebase"], function(){});
 define('appMainCtrl',['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
-	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, firebaseCollection) {
+	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, firebaseCollection) {
+
+		$scope.showEdit = true;
+
 		$scope.showForm = true;
 		$scope.index = $firebase(new Firebase('https://picture-board.firebaseio.com/index'));
 		// TODO: init $scope.index
@@ -35312,6 +35315,33 @@ define('app-filters',['underscore', 'app'], function(_, app) {
 	app.filter('reverse', function () {
 		return function (input) {
 			return _(input).reverse();
+		};
+	});
+});
+
+
+
+define('app-directives',['app', 'underscore'], function(app, _) {
+	app.directive('myExpandable', function($log, $document, $timeout) {
+		return {
+			restrict: 'AE',
+			scope: {
+				'myModel': '=myModel'
+			},
+			templateUrl: 'views/expand-input.html',
+			link: function($scope, elem, attr) {
+				$scope.showEditBox = true;
+				$scope.$watch('showEditBox', function() {
+					$log.info('good');
+					if ( !$scope.showEditBox ) {
+						var textArea = $document.find('.expand-input');
+						$log.info('good');
+						$timeout(function() {
+							textArea.focus();
+						});
+					}
+				});
+			}
 		};
 	});
 });
@@ -35458,6 +35488,7 @@ require.config({
 		'underscore': 'bower_components/underscore/underscore',
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
+		'app-directives': 'scripts/directives/main',
 		'appMainCtrl': 'scripts/controllers/main',
 		'angular': 'bower_components/angular/angular',
 		'angular-route': 'bower_components/angular-route/angular-route',
@@ -35521,7 +35552,7 @@ define("amd-modules", function(){});
  */
 
 define('scripts/main',
-	   ['angular', 'app', 'appMainCtrl', 'app-filters', 'domReady!'],
+	   ['angular', 'app', 'appMainCtrl', 'app-filters', 'app-directives', 'domReady!'],
 	   function(angular, app)
 {
 	try {

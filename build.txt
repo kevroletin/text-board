@@ -15,6 +15,7 @@ bower_components/underscore/underscore.js
 bower_components/angularfire/angularfire.js
 scripts/controllers/main.js
 scripts/filters/filters.js
+scripts/directives/main.js
 bower_components/requirejs-domready/domReady.js
 domReady!
 amd-modules.js
