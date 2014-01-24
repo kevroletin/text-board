@@ -12,7 +12,7 @@
  */
 
 define('scripts/main',
-	   ['angular', 'app', 'appMainCtrl', 'app-filters', 'domReady!'],
+	   ['angular', 'app', 'appMainCtrl', 'app-filters', 'app-directives', 'domReady!'],
 	   function(angular, app)
 {
 	try {

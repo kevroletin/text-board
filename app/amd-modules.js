@@ -10,6 +10,7 @@ require.config({
 		'underscore': 'bower_components/underscore/underscore',
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
+		'app-directives': 'scripts/directives/main',
 		'appMainCtrl': 'scripts/controllers/main',
 		'angular': 'bower_components/angular/angular',
 		'angular-route': 'bower_components/angular-route/angular-route',
