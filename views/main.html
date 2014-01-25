@@ -24,7 +24,15 @@
   </form>
 </div>
 
-<hr ng-repeat-start="x in posts | orderBy:'i':true">
+<div>
+  <button ng-disabled="!currentPage"
+	      ng-click="currentPage=currentPage-1"><-</button>
+  <button ng-disabled="(currentPage+1)*pageSize > posts.length"
+	      ng-click="currentPage=currentPage+1">-></button>
+</div>
+
+<hr ng-repeat-start=
+	"x in posts | orderBy:'i':true | startFrom:currentPage*pageSize | limitTo:pageSize">
 <div ng-repeat-end>
   <button ng-click="deletePost(x)" style="float: right">X</button>
   <h2  ng-if="x.title">{{x.title}}</h2>
@@ -32,4 +40,12 @@
   <pre ng-if="x.code">{{x.code}}</pre>
   <img ng-if="x.img"
 	   ng-src="{{x.img}}"></img>
+</div>
+
+<!-- TODO: factor out into separate directive -->
+<div ng-show="posts.length">
+  <button ng-disabled="!currentPage"
+	      ng-click="currentPage=currentPage-1"><-</button>
+  <button ng-disabled="(currentPage+1)*pageSize > posts.length"
+	      ng-click="currentPage=currentPage+1">-></button>
 </div>

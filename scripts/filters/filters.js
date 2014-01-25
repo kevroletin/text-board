@@ -23,4 +23,10 @@ define(['underscore', 'app'], function(_, app) {
 			return _(input).reverse();
 		};
 	});
+	app.filter('startFrom', function() {
+		return function(input, start) {
+			start = +start;
+			return input.slice(start);
+		};
+	});
 });

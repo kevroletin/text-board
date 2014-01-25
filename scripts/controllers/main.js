@@ -4,9 +4,8 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
 	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, firebaseCollection) {
-
-		$scope.showEdit = true;
-
+		$scope.currentPage = 0;
+		$scope.pageSize = 30;
 		$scope.showForm = true;
 		$scope.index = $firebase(new Firebase('https://picture-board.firebaseio.com/index'));
 		// TODO: init $scope.index
