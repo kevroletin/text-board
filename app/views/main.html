@@ -1,3 +1,7 @@
+<p>Hello Mr. <a href="" ng-click="generateUsername()">{{username}}</a>.
+  <span ng-hide="firstTimeHere">Nice to see you again.</span>
+</p>
+
 <a href="" ng-click="showForm = !showForm">Make post</a>
 <div ng-show="showForm">
   <form ng-submit="addNewPost()">
