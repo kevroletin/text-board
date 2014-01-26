@@ -5,7 +5,8 @@ define(['app', 'underscore'], function(app, _) {
 		return {
 			restrict: 'AE',
 			scope: {
-				'myModel': '=myModel'
+				'myModel': '=',
+				'mySubmit': '&'
 			},
 			templateUrl: 'views/expand-input.html',
 			link: function($scope, elem, attr) {
@@ -18,6 +19,12 @@ define(['app', 'underscore'], function(app, _) {
 						});
 					}
 				});
+				$scope.keydown = function(event) {
+					/* ctrl + enter pressed */
+					if (event.ctrlKey && event.keyCode == 13) {
+						$scope.mySubmit();
+					}
+				};
 			}
 		};
 	});

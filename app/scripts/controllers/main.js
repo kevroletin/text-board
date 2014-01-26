@@ -48,6 +48,11 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			$scope.index.$set(res + 1);
 			return res;
 		};
-
+		// TODO: pass $scope.addNewPost() as a callback
+		$scope.submitOnCtrlEnter = function(event) {
+			if (event.ctrlKey && event.keyCode == 13) {
+				$scope.addNewPost()
+			}
+		};
 	});
 });
