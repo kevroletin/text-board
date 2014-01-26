@@ -29,7 +29,7 @@ define(['underscore', 'app'], function(_, app) {
 			return input.slice(start);
 		};
 	});
-	app.filter('likedBy', function() {
+	app.filter('notDislikedBy', function() {
 		return function(input, username) {
 			return _(input).filter(function(x) {
 				if (x.deletedBy) {

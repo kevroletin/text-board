@@ -4,7 +4,9 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
 	app.constant('firebaseUrl', 'https://picture-board.firebaseio.com/');
-	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl) {
+	app.controller('MainCtrl',
+		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl)
+	{
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
 				       'abcdefghijklmnopqrstuvwxyz' +
@@ -20,18 +22,20 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 		}
 
 		$scope.newComment = {};
+		$scope.newPost = null;
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
-		$scope.index = $firebase(new Firebase(firebaseUrl + 'index'));
+		$scope.latesPostId = $firebase(new Firebase(firebaseUrl + 'index'));
 		$scope.posts = firebaseCollection(firebaseUrl + 'test');
 		$scope.addNewPost = function() {
-			if ($scope.new) {
-				$scope.new.i = $scope.getIndex();
-				$scope.posts.$add($scope.new);
-				$scope.new = null;
+			if ($scope.newPost) {
+				$scope.newPost.i = $scope.getNewPostId();
+				$scope.posts.$add($scope.newPost);
+				$scope.newPost = null;
 			}
 		};
+		/* used for like, dislike, delete features */
 		$scope.addToPostField = function(post, field) {
 			if (!post[field]) {
 				post[field] = [];
@@ -41,22 +45,13 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				$scope.posts.$update(post);
 			}
 		};
-		/* TODO: refactor with deletePost */
-		$scope.likePost = function(post) {
-		};
-		$scope.getIndex = function() {
-			var res = $scope.index.$value;
+		$scope.getNewPostId = function() {
+			var res = $scope.latesPostId.$value;
 			if ( !res ) {
 				res = 1;
 			}
-			$scope.index.$set(res + 1);
+			$scope.latesPostId.$set(res + 1);
 			return res;
-		};
-		// TODO: pass $scope.addNewPost() as a callback
-		$scope.submitOnCtrlEnter = function(event) {
-			if (event.ctrlKey && event.keyCode === 13) {
-				$scope.addNewPost();
-			}
 		};
 		$scope.commentOnCtrlEnter = function(event, post) {
 			if (event.ctrlKey && event.keyCode === 13) {
