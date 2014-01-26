@@ -35264,13 +35264,27 @@ define("angularfire", ["angular","firebase"], function(){});
 define('appMainCtrl',['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
-	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, firebaseCollection) {
+	app.constant('firebaseUrl', 'https://picture-board.firebaseio.com/');
+	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl) {
+		$scope.generateUsername = function() {
+			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+				       'abcdefghijklmnopqrstuvwxyz' +
+				       '0123456789';
+			$scope.username = _(_.sample(alph, 10)).join('');
+			$cookies.username = $scope.username;
+			$scope.firstTimeHere = true;
+		};
+		if ($cookies.username) {
+			$scope.username = $cookies.username;
+		} else {
+			$scope.generateUsername();
+		}
+
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
-		$scope.index = $firebase(new Firebase('https://picture-board.firebaseio.com/index'));
-		// TODO: init $scope.index
-		$scope.posts = firebaseCollection('https://picture-board.firebaseio.com/test');
+		$scope.index = $firebase(new Firebase(firebaseUrl + 'index'));
+		$scope.posts = firebaseCollection(firebaseUrl + 'test');
 		$scope.addNewPost = function() {
 			if ($scope.new) {
 				$scope.new.i = $scope.getIndex();
@@ -35278,12 +35292,20 @@ define('appMainCtrl',['underscore', 'app', 'firebase', 'angularfire'],
 				$scope.new = null;
 			}
 		};
-		$scope.deletePost = function(key) {
-			$log.info(key);
-			$scope.posts.$remove(key);
+		$scope.deletePost = function(post) {
+			if (!post.deletedBy) {
+				post.deletedBy = [];
+			}
+			if (!_(post.deletedBy).contains($scope.username)) {
+				_(post.deletedBy).push($scope.username);
+				$scope.posts.$update(post);
+			}
 		};
 		$scope.getIndex = function() {
 			var res = $scope.index.$value;
+			if ( !res ) {
+				res = 1;
+			}
 			$scope.index.$set(res + 1);
 			return res;
 		};
@@ -35322,6 +35344,16 @@ define('app-filters',['underscore', 'app'], function(_, app) {
 			return input.slice(start);
 		};
 	});
+	app.filter('likedBy', function() {
+		return function(input, username) {
+			return _(input).filter(function(x) {
+				if (x.deletedBy) {
+					return !_(x.deletedBy).contains(username);
+				}
+				return true;
+			});
+		};
+	});
 });
 
 
@@ -35337,16 +35369,20 @@ define('app-directives',['app', 'underscore'], function(app, _) {
 			link: function($scope, elem, attr) {
 				$scope.showEditBox = true;
 				$scope.$watch('showEditBox', function() {
-					$log.info('good');
 					if ( !$scope.showEditBox ) {
 						var textArea = $document.find('.expand-input');
-						$log.info('good');
 						$timeout(function() {
 							textArea.focus();
 						});
 					}
 				});
 			}
+		};
+	});
+	app.directive('myPaginator', function($log, $document, $timeout) {
+		return {
+			restrict: 'AE',
+			templateUrl: 'views/paginator.html',
 		};
 	});
 });
