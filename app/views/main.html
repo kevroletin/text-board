@@ -35,16 +35,22 @@
 <hr ng-repeat-start=
 	"x in posts | likedBy:username | orderBy:'i':true | startFrom:currentPage*pageSize | limitTo:pageSize">
 <div ng-repeat-end>
-  <small><a href="" ng-click="deletePost(x)" style="float:
-  right">shit</a></small>
+  <small style="float: right">
+	<a style="color:gray" href="" ng-click="addToPostField(x,'deletedBy')">
+	  shit{{[x.deletedBy.length] | inBrackets }}</a>
+	<a href="" ng-click="addToPostField(x,'likedBy')">
+	  perfect{{[x.likedBy.length] | inBrackets }}</a>
+  </small>
+
   <h2  ng-if="x.title">{{x.title}}</h2>
   <p   ng-if="x.text">{{x.text}}</p>
   <pre ng-if="x.code">{{x.code}}</pre>
   <img ng-if="x.img"
 	   ng-src="{{x.img}}"></img>
 
-  <small ng-if="x.deletedBy"><i>Disliked by {{x.deletedBy | joinBy:' ,  '}}</i></small>
-
+  <p><small ng-if="x.deletedBy" style="color: gray"><i>Disliked by {{x.deletedBy | joinBy:' ,  '}}</i></small><br>
+     <small ng-if="x.likedBy" style="color: gray"><i>Liked by {{x.likedBy | joinBy:' ,  '}}</i></small></p>
+  
   <div style="margin-left:30px">
 	<p ng-repeat="y in x.comments track by $index">{{y.text}}</p>
 	<textarea class="commentTextarea"

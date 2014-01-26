@@ -39,4 +39,15 @@ define(['underscore', 'app'], function(_, app) {
 			});
 		};
 	});
+	app.filter('inBrackets', function() {
+		return function(input) {
+			return _(_(input).map(function(x) {
+				if ( x ) {
+					return '(' + x + ')';
+				} else {
+					return '';
+				}
+			})).join(',');
+		};
+	});
 });

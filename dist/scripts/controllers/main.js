@@ -19,6 +19,7 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			$scope.generateUsername();
 		}
 
+		$scope.newComment = {};
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
@@ -31,14 +32,17 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				$scope.new = null;
 			}
 		};
-		$scope.deletePost = function(post) {
-			if (!post.deletedBy) {
-				post.deletedBy = [];
+		$scope.addToPostField = function(post, field) {
+			if (!post[field]) {
+				post[field] = [];
 			}
-			if (!_(post.deletedBy).contains($scope.username)) {
-				_(post.deletedBy).push($scope.username);
+			if (!_(post[field]).contains($scope.username)) {
+				_(post[field]).push($scope.username);
 				$scope.posts.$update(post);
 			}
+		};
+		/* TODO: refactor with deletePost */
+		$scope.likePost = function(post) {
 		};
 		$scope.getIndex = function() {
 			var res = $scope.index.$value;
@@ -62,6 +66,19 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				});
 			}
 		};
+		$scope.editCommentFocus = function() {
+			if ($scope.hideEditTimeout) {
+				$timeout.cancel($scope.hideEditTimeout);
+			}
+			$scope.hideEditTimeout = null;
+		};
+		$scope.editCommentBlur = function() {
+			if ( _($scope.newComment.text).isEmpty() ) {
+				$scope.hideEditTimeout = $timeout(function() {
+					$scope.editCommentId = '';
+				}, 500);
+			}
+		};
 		$scope.setEditCommentId = function(id) {
 			$scope.editCommentId = id;
 			$timeout(function() {
@@ -77,10 +94,10 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			}
 			_(post.comments).push( $scope.newComment );
 			$scope.posts.$update( post );
-			$scope.newComment = '';
+			$scope.newComment = {};
+			$timeout(function() {
+				$document.find('.commentTextarea').focus();
+			});
 		};
-		$scope.newComment = '';
-
-
 	});
 });

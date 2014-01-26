@@ -3,7 +3,7 @@
 define(['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
-	app.constant('firebaseUrl', 'https://picture-board-dev.firebaseio.com/');
+	app.constant('firebaseUrl', 'https://picture-board.firebaseio.com/');
 	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl) {
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
@@ -32,14 +32,17 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				$scope.new = null;
 			}
 		};
-		$scope.deletePost = function(post) {
-			if (!post.deletedBy) {
-				post.deletedBy = [];
+		$scope.addToPostField = function(post, field) {
+			if (!post[field]) {
+				post[field] = [];
 			}
-			if (!_(post.deletedBy).contains($scope.username)) {
-				_(post.deletedBy).push($scope.username);
+			if (!_(post[field]).contains($scope.username)) {
+				_(post[field]).push($scope.username);
 				$scope.posts.$update(post);
 			}
+		};
+		/* TODO: refactor with deletePost */
+		$scope.likePost = function(post) {
 		};
 		$scope.getIndex = function() {
 			var res = $scope.index.$value;
