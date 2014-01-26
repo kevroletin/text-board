@@ -1,12 +1,13 @@
 'use strict';
 
-define(['underscore', 'app'], function(_, app) {
-	app.filter('joinBy', function () {
+define(['underscore', 'angular'], function(_, angular) {
+	return angular.module('appFilters', [])
+	.filter('joinBy', function () {
 		return function (input, delimiter) {
 			return (input || []).join(delimiter || ',');
 		};
-	});
-	app.filter('withDefault', function () {
+	})
+	.filter('withDefault', function () {
 		return function (input, defaultValue) {
 			if (!defaultValue) {
 				defaultValue = '';
@@ -17,19 +18,19 @@ define(['underscore', 'app'], function(_, app) {
 				return input;
 			}
 		};
-	});
-	app.filter('reverse', function () {
+	})
+	.filter('reverse', function () {
 		return function (input) {
 			return _(input).reverse();
 		};
-	});
-	app.filter('startFrom', function() {
+	})
+	.filter('startFrom', function() {
 		return function(input, start) {
 			start = +start;
 			return input.slice(start);
 		};
-	});
-	app.filter('likedBy', function() {
+	})
+	.filter('notDislikedBy', function() {
 		return function(input, username) {
 			return _(input).filter(function(x) {
 				if (x.deletedBy) {
@@ -38,8 +39,8 @@ define(['underscore', 'app'], function(_, app) {
 				return true;
 			});
 		};
-	});
-	app.filter('inBrackets', function() {
+	})
+	.filter('inBrackets', function() {
 		return function(input) {
 			return _(_(input).map(function(x) {
 				if ( x ) {

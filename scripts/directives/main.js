@@ -1,7 +1,10 @@
 'use strict';
 
-define(['app', 'underscore'], function(app, _) {
-	app.directive('myExpandable', function($log, $document, $timeout) {
+define(['underscore', 'angular', 'app-filters'], function(_, angular) {
+	return angular.module('appDirectives', [
+		'appFilters'
+	])
+	.directive('myExpandable', function($log, $document, $timeout) {
 		return {
 			restrict: 'AE',
 			scope: {
@@ -27,8 +30,8 @@ define(['app', 'underscore'], function(app, _) {
 				};
 			}
 		};
-	});
-	app.directive('myPaginator', function($log, $document, $timeout) {
+	})
+	.directive('myPaginator', function($log, $document, $timeout) {
 		return {
 			restrict: 'AE',
 			templateUrl: 'views/paginator.html',
