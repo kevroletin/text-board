@@ -29,4 +29,14 @@ define(['underscore', 'app'], function(_, app) {
 			return input.slice(start);
 		};
 	});
+	app.filter('likedBy', function() {
+		return function(input, username) {
+			return _(input).filter(function(x) {
+				if (x.deletedBy) {
+					return !_(x.deletedBy).contains(username);
+				}
+				return true;
+			});
+		};
+	});
 });

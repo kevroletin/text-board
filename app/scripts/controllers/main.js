@@ -9,7 +9,7 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
 				       'abcdefghijklmnopqrstuvwxyz' +
 				       '0123456789';
-			$scope.username = _(_.sample(alph, 15)).join('');
+			$scope.username = _(_.sample(alph, 10)).join('');
 			$cookies.username = $scope.username;
 			$scope.firstTimeHere = true;
 		};
@@ -31,9 +31,14 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				$scope.new = null;
 			}
 		};
-		$scope.deletePost = function(key) {
-			$log.info(key);
-			$scope.posts.$remove(key);
+		$scope.deletePost = function(post) {
+			if (!post.deletedBy) {
+				post.deletedBy = [];
+			}
+			if (!_(post.deletedBy).contains($scope.username)) {
+				_(post.deletedBy).push($scope.username);
+				$scope.posts.$update(post);
+			}
 		};
 		$scope.getIndex = function() {
 			var res = $scope.index.$value;
