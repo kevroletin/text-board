@@ -7,23 +7,25 @@
   <form ng-submit="addNewPost()">
 	<table>
 	<tr><td>Title here:</td>
-	    <td><input ng-model="new.title" placeholder="^_^"></input></td>
+	    <td><input ng-keydown="submitOnCtrlEnter($event)"
+				   ng-model="new.title" placeholder="^_^"></input></td>
     <tr></tr>
 	    <td>Text here:</td>
 	    <td>
-		  <my-expandable my-model="new.text"></my-expandable>
+		  <my-expandable my-model="new.text" my-submit="addNewPost()"></my-expandable>
 		</td>
     <tr></tr>
 	    <td>Code here:</td>
 		<td>
-		  <my-expandable my-model="new.code"></my-expandable>
+		  <my-expandable my-model="new.code" my-submit="addNewPost()"></my-expandable>
 		</td>
     <tr></tr>
 	    <td>Image here:</td>
-		<td><input ng-model="new.img" placeholder="http://pic.jpg"></input></td>
+		<td><input ng-keydown="submitOnCtrlEnter($event)"
+				   ng-model="new.img" placeholder="http://pic.jpg"></input></td>
     <tr></tr>
 		<td></td>
-	    <td><button>Show to friends!</button></td>
+	    <td><button ng-mousedown="addNewPost()">Show to friends!</button></td>
 	</tr></table>
   </form>
 </div>
@@ -33,7 +35,8 @@
 <hr ng-repeat-start=
 	"x in posts | likedBy:username | orderBy:'i':true | startFrom:currentPage*pageSize | limitTo:pageSize">
 <div ng-repeat-end>
-  <button ng-click="deletePost(x)" style="float: right">X</button>
+  <small><a href="" ng-click="deletePost(x)" style="float:
+  right">shit</a></small>
   <h2  ng-if="x.title">{{x.title}}</h2>
   <p   ng-if="x.text">{{x.text}}</p>
   <pre ng-if="x.code">{{x.code}}</pre>
@@ -41,6 +44,21 @@
 	   ng-src="{{x.img}}"></img>
 
   <small ng-if="x.deletedBy"><i>Disliked by {{x.deletedBy | joinBy:' ,  '}}</i></small>
+
+  <div style="margin-left:30px">
+	<p ng-repeat="y in x.comments track by $index"
+	   >{{y.text}}</p>
+	<textarea class="commentTextarea"
+	          ng-if="x.$id === editCommentId"
+			  ng-model="$parent.$parent.newComment.text"
+			  ng-keydown="commentOnCtrlEnter($event, x)">
+	</textarea>
+	<button ng-if="x.$id === editCommentId"
+			ng-click="addComment(x)">Post</button>
+	<small><a href=""
+	   ng-if="x.$id !== editCommentId"
+	   ng-click="setEditCommentId(x.$id)">your opinion here</a></small>
+  </div>
 </div>
 
 <div my-paginator ng-show="posts.length"></div>

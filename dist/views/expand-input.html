@@ -5,4 +5,5 @@
 <textarea class="expand-input"
 		  ng-hide="showEditBox"
 		  ng-model="myModel"
-		  ng-blur="showEditBox=true"></textarea>
+		  ng-blur="showEditBox=true"
+		  ng-keydown="keydown($event)"></textarea>
