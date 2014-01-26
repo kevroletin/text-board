@@ -1,0 +1,7 @@
+<div>
+  <button ng-disabled="!currentPage"
+	      ng-click="currentPage=currentPage-1"><-</button>
+<!-- TODO: apply likedBy:username filter here-->
+  <button ng-disabled="(currentPage+1)*pageSize > posts.length"
+	      ng-click="currentPage=currentPage+1">-></button>
+</div>
