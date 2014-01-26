@@ -1,5 +1,5 @@
 {
-  "name": "wcs-client",
+  "name": "text-board",
   "version": "0.0.0",
   "dependencies": {
     "json3": "~3.2.6",
