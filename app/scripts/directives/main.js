@@ -21,7 +21,7 @@ define(['app', 'underscore'], function(app, _) {
 				});
 				$scope.keydown = function(event) {
 					/* ctrl + enter pressed */
-					if (event.ctrlKey && event.keyCode == 13) {
+					if (event.ctrlKey && event.keyCode === 13) {
 						$scope.mySubmit();
 					}
 				};

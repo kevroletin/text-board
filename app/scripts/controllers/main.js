@@ -50,9 +50,37 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 		};
 		// TODO: pass $scope.addNewPost() as a callback
 		$scope.submitOnCtrlEnter = function(event) {
-			if (event.ctrlKey && event.keyCode == 13) {
-				$scope.addNewPost()
+			if (event.ctrlKey && event.keyCode === 13) {
+				$scope.addNewPost();
 			}
 		};
+		$scope.commentOnCtrlEnter = function(event, post) {
+			if (event.ctrlKey && event.keyCode === 13) {
+				$scope.addComment(post);
+				$timeout(function() {
+					$document.find('.commentTextarea').focus();
+				});
+			}
+		};
+		$scope.setEditCommentId = function(id) {
+			$scope.editCommentId = id;
+			$timeout(function() {
+				$document.find('.commentTextarea').focus();
+			});
+		};
+		$scope.addComment = function(post) {
+			if ( _($scope.newComment).isEmpty() ) {
+				return;
+			}
+			if ( !post.comments ) {
+				post.comments = [];
+			}
+			_(post.comments).push( $scope.newComment );
+			$scope.posts.$update( post );
+			$scope.newComment = '';
+		};
+		$scope.newComment = '';
+
+
 	});
 });
