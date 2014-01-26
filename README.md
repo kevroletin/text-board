@@ -1,7 +1,8 @@
 Info
 ===
 
-Toy anonymous text board.
+Toy anonymous text board with live updates. Check [live example](http://vkevroletin.github.io/text-board/).
+Power of quick live updates comes from [firebase](https://www.firebase.com/) service.
 
 Installation is simple
 ===
@@ -13,12 +14,9 @@ You need node.js installed in your system. Also you need bower and grunt-cli(if 
 
 Clone source code using git and install bower dependencies:
 
-        git clone git@bitbucket.org:kevroletin/wcs-client-angular.git
-        cd wcs-client-angular
+        git clone https://github.com/vkevroletin/text-board.git
+        cd text-board
         bower install
-
-Configure proxy in `app/config.js` and you are ready to serve application using your
-web server.
 
 Development
 ===
