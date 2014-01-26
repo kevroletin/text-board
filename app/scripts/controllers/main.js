@@ -3,7 +3,7 @@
 define(['underscore', 'app', 'firebase', 'angularfire'],
 	   function(_, app, Firebase)
 {
-	app.constant('firebaseUrl', 'https://picture-board.firebaseio.com/');
+	app.constant('firebaseUrl', 'https://picture-board-dev.firebaseio.com/');
 	app.controller('MainCtrl', function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl) {
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
@@ -19,6 +19,7 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			$scope.generateUsername();
 		}
 
+		$scope.newComment = {};
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
@@ -62,6 +63,19 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 				});
 			}
 		};
+		$scope.editCommentFocus = function() {
+			if ($scope.hideEditTimeout) {
+				$timeout.cancel($scope.hideEditTimeout);
+			}
+			$scope.hideEditTimeout = null;
+		};
+		$scope.editCommentBlur = function() {
+			if ( _($scope.newComment.text).isEmpty() ) {
+				$scope.hideEditTimeout = $timeout(function() {
+					$scope.editCommentId = '';
+				}, 500);
+			}
+		};
 		$scope.setEditCommentId = function(id) {
 			$scope.editCommentId = id;
 			$timeout(function() {
@@ -77,10 +91,10 @@ define(['underscore', 'app', 'firebase', 'angularfire'],
 			}
 			_(post.comments).push( $scope.newComment );
 			$scope.posts.$update( post );
-			$scope.newComment = '';
+			$scope.newComment = {};
+			$timeout(function() {
+				$document.find('.commentTextarea').focus();
+			});
 		};
-		$scope.newComment = '';
-
-
 	});
 });
