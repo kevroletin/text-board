@@ -11,16 +11,20 @@ define(['app', 'underscore'], function(app, _) {
 			link: function($scope, elem, attr) {
 				$scope.showEditBox = true;
 				$scope.$watch('showEditBox', function() {
-					$log.info('good');
 					if ( !$scope.showEditBox ) {
 						var textArea = $document.find('.expand-input');
-						$log.info('good');
 						$timeout(function() {
 							textArea.focus();
 						});
 					}
 				});
 			}
+		};
+	});
+	app.directive('myPaginator', function($log, $document, $timeout) {
+		return {
+			restrict: 'AE',
+			templateUrl: 'views/paginator.html',
 		};
 	});
 });

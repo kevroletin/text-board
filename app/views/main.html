@@ -24,12 +24,7 @@
   </form>
 </div>
 
-<div>
-  <button ng-disabled="!currentPage"
-	      ng-click="currentPage=currentPage-1"><-</button>
-  <button ng-disabled="(currentPage+1)*pageSize > posts.length"
-	      ng-click="currentPage=currentPage+1">-></button>
-</div>
+<div my-paginator></div>
 
 <hr ng-repeat-start=
 	"x in posts | orderBy:'i':true | startFrom:currentPage*pageSize | limitTo:pageSize">
@@ -42,10 +37,4 @@
 	   ng-src="{{x.img}}"></img>
 </div>
 
-<!-- TODO: factor out into separate directive -->
-<div ng-show="posts.length">
-  <button ng-disabled="!currentPage"
-	      ng-click="currentPage=currentPage-1"><-</button>
-  <button ng-disabled="(currentPage+1)*pageSize > posts.length"
-	      ng-click="currentPage=currentPage+1">-></button>
-</div>
+<div my-paginator ng-show="posts.length"></div>
