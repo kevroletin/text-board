@@ -4,14 +4,12 @@ require.config({
 //	urlArgs: 'v='+(new Date()).getTime(), // uncomment is you want full application reload
     baseUrl: '.',
 	paths: {
+		/* requirejs plugins */
 		'domReady': 'bower_components/requirejs-domready/domReady',
 		'text': 'bower_components/requirejs-text/text',
+		/* external libs */
 		'jquery': 'bower_components/jquery/jquery',
 		'underscore': 'bower_components/underscore/underscore',
-		'app': 'scripts/app',
-		'app-filters': 'scripts/filters/filters',
-		'app-directives': 'scripts/directives/main',
-		'appMainCtrl': 'scripts/controllers/main',
 		'angular': 'bower_components/angular/angular',
 		'angular-route': 'bower_components/angular-route/angular-route',
 		'angular-resource': 'bower_components/angular-resource/angular-resource',
@@ -22,6 +20,11 @@ require.config({
 		'angular-firebase': 'bower_components/angular-firebase/ng-firebase',
 		'angular-firebase-bindings': 'bower_components/angular-firebase/ng-firebase-binding',
 		'angular-firebase-collection': 'bower_components/angular-firebase/ng-firebase-collection',
+		/* application */
+		'app': 'scripts/app',
+		'app-filters': 'scripts/filters/filters',
+		'app-directives': 'scripts/directives/main',
+		'app-main-ctrl': 'scripts/controllers/main',
 	},
 
 	shim: {

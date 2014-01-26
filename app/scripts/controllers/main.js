@@ -1,10 +1,18 @@
 'use strict';
 
-define(['underscore', 'app', 'firebase', 'angularfire'],
-	   function(_, app, Firebase)
+define(['underscore', 'angular', 'firebase', 'angularfire', 'angular-firebase-collection', 'app-directives'],
+	   function(_, angular, Firebase)
 {
-	app.constant('firebaseUrl', 'https://picture-board.firebaseio.com/');
-	app.controller('MainCtrl',
+	return angular.module('appMainCtrl', [
+		'appDirectives',
+		'ngCookies',
+		'ngResource',
+		'ngSanitize',
+		'firebase',
+		'ng-firebase'
+	])
+	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
+	.controller('MainCtrl',
 		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl)
 	{
 		$scope.generateUsername = function() {

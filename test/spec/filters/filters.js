@@ -5,7 +5,7 @@ define(['app-filters'], function() {
 		var joinBy;
 
 		beforeEach(function() {
-			module('App');
+			module('appFilters');
 			inject(function(joinByFilter) {
 				joinBy = joinByFilter;
 			});

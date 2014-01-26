@@ -12,11 +12,11 @@
  */
 
 define('scripts/main',
-	   ['angular', 'app', 'appMainCtrl', 'app-filters', 'app-directives', 'domReady!'],
+	   ['angular', 'app', 'domReady!'],
 	   function(angular, app)
 {
 	try {
-		angular.bootstrap(document, ['App']);
+		angular.bootstrap(document, ['app']);
 	} catch(e) {
 		console.log(e);
 	}

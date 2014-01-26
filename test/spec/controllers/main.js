@@ -2,7 +2,7 @@
 
 define(['underscore',
 		'chai-expect',
-		'appMainCtrl'],
+		'app-main-ctrl'],
 	function(_, want) {
 
 	describe('warm up: ', function() {
