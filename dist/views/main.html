@@ -49,7 +49,8 @@
   <p   ng-if="x.text">{{x.text}}</p>
   <pre ng-if="x.code">{{x.code}}</pre>
   <img ng-if="x.img"
-	   ng-src="{{x.img}}"></img>
+	   ng-src="{{x.img}}"
+	   ng-style="{'max-width': '950px'}"></img>
 
   <p>
 	<small ng-if="x.deletedBy" style="color: gray"><i>Deleted by {{x.deletedBy | joinBy:' ,  '}}</i></small>
