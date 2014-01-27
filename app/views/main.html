@@ -32,7 +32,7 @@
 <div my-paginator></div>
 
 <hr ng-repeat-start=
-	"x in posts | notDislikedBy:username | orderBy:'i':true | startFrom:currentPage*pageSize | limitTo:pageSize">
+	"x in posts | notDislikedBy:username | reverse | startFrom:currentPage*pageSize | limitTo:pageSize">
 <div ng-repeat-end>
   <small style="float: right">
 	<a href="" ng-click="addToPostField(x,'likedBy')">
