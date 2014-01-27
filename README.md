@@ -1,13 +1,13 @@
-Info
-===
+# TEXT BOARD [![Build Status](https://travis-ci.org/vkevroletin/text-board.png?branch=master)](https://travis-ci.org/vkevroletin/text-board)
+
 
 Toy anonymous text board with live updates. Check [live example](http://vkevroletin.github.io/text-board/).
-Power of quick live updates comes from [firebase](https://www.firebase.com/) service.
 
-This is client-side pure javascript application. Backend is managed by SAAS platform firebase.
 
 Installation is simple
-===
+---
+
+This is client-side javascript application. Power of quick live updates comes from [firebase](https://www.firebase.com/) service.
 
 You need node.js installed in your system. Also you need bower and grunt-cli(if you plan to develop):
 
@@ -21,7 +21,7 @@ Clone source code using git and install bower dependencies:
         bower install
 
 Development
-===
+---
 
 Install npm dependencies which will automate your life.
 They find errors in code, run tests in multiple browsers, optimize code and install libraries. 
@@ -29,7 +29,7 @@ They find errors in code, run tests in multiple browsers, optimize code and inst
         npm install
 
 Workflow
-===
+---
 
 Verify syntax in all javascript files
        
@@ -52,7 +52,7 @@ Serve application using nodejs server (with autoreload feature)
         grunt serve
 
 e2e testing
-===
+---
 
 You need to install WebDriver and configure tests/protractor.conf.js. Then you are ready
 to run tests.
