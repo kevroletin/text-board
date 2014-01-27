@@ -35362,11 +35362,9 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
-		$scope.latesPostId = $firebase(new Firebase(firebaseUrl + 'index'));
 		$scope.posts = firebaseCollection(firebaseUrl + 'test');
 		$scope.addNewPost = function() {
 			if ($scope.newPost) {
-				$scope.newPost.i = $scope.getNewPostId();
 				$scope.posts.$add($scope.newPost);
 				$scope.newPost = null;
 			}
@@ -35380,14 +35378,6 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 				_(post[field]).push($scope.username);
 				$scope.posts.$update(post);
 			}
-		};
-		$scope.getNewPostId = function() {
-			var res = $scope.latesPostId.$value;
-			if ( !res ) {
-				res = 1;
-			}
-			$scope.latesPostId.$set(res + 1);
-			return res;
 		};
 		$scope.commentOnCtrlEnter = function(event, post) {
 			if (event.ctrlKey && event.keyCode === 13) {
