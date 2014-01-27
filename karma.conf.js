@@ -29,9 +29,8 @@ module.exports = function(config) {
 		},
 
 		coverageReporter: {
-			type : 'text',
+			type : 'lcov',
 			dir : 'coverage/',
-			file : 'coverage.txt',
 			color: false
 		},
 
