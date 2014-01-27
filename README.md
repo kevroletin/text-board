@@ -4,6 +4,8 @@ Info
 Toy anonymous text board with live updates. Check [live example](http://vkevroletin.github.io/text-board/).
 Power of quick live updates comes from [firebase](https://www.firebase.com/) service.
 
+This is client-side pure javascript application. Backend is managed by SAAS platform firebase.
+
 Installation is simple
 ===
 
