@@ -1,4 +1,4 @@
-# TEXT BOARD [![Build Status](https://travis-ci.org/vkevroletin/text-board.png?branch=master)](https://travis-ci.org/vkevroletin/text-board)
+# TEXT BOARD [![Build Status](https://travis-ci.org/vkevroletin/text-board.png?branch=master)](https://travis-ci.org/vkevroletin/text-board) [![Coverage Status](https://coveralls.io/repos/vkevroletin/text-board/badge.png?branch=master)](https://coveralls.io/r/vkevroletin/text-board?branch=master)
 
 
 Toy anonymous text board with live updates. Check [live example](http://vkevroletin.github.io/text-board/).
