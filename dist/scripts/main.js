@@ -35341,7 +35341,7 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 	])
 	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
 	.controller('MainCtrl',
-		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, $interval, firebaseCollection, firebaseUrl)
+		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl)
 	{
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
@@ -35363,9 +35363,10 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 		$scope.pageSize = 30;
 		$scope.showForm = true;
 		$scope.posts = firebaseCollection(firebaseUrl + 'test');
-		$scope.posts2 = $firebase(new Firebase(firebaseUrl + 'test'));
 		$scope.addNewPost = function() {
-			if ($scope.newPost) {
+			if ($scope.newPost &&
+				!_($scope.newPost).every(_.isEmpty))
+			{
 				$scope.newPost.comments = [];
 				$scope.posts.$add($scope.newPost);
 				$scope.newPost = null;
