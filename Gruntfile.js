@@ -375,6 +375,7 @@ module.exports = function (grunt) {
 		coveralls: {
 			options: {
 				debug: true,
+				/*jslint camelcase: false*/
 				coverage_dir: 'coverage'
 			}
 		},
