@@ -35341,7 +35341,7 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 	])
 	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
 	.controller('MainCtrl',
-		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl)
+		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, $interval, firebaseCollection, firebaseUrl)
 	{
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
@@ -35363,8 +35363,10 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 		$scope.pageSize = 30;
 		$scope.showForm = true;
 		$scope.posts = firebaseCollection(firebaseUrl + 'test');
+		$scope.posts2 = $firebase(new Firebase(firebaseUrl + 'test'));
 		$scope.addNewPost = function() {
 			if ($scope.newPost) {
+				$scope.newPost.comments = [];
 				$scope.posts.$add($scope.newPost);
 				$scope.newPost = null;
 			}
@@ -35407,14 +35409,15 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 			});
 		};
 		$scope.addComment = function(post) {
+			var path;
 			if ( _($scope.newComment).isEmpty() ) {
 				return;
 			}
 			if ( !post.comments ) {
 				post.comments = [];
 			}
-			_(post.comments).push( $scope.newComment );
-			$scope.posts.$update( post );
+			path = firebaseUrl + 'test/' + post.$id + '/comments';
+			$firebase(new Firebase(path)).$add( $scope.newComment );
 			$scope.newComment = {};
 			$timeout(function() {
 				$document.find('.commentTextarea').focus();
