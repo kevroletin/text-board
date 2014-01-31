@@ -1,8 +1,9 @@
 # TEXT BOARD [![Build Status](https://travis-ci.org/vkevroletin/text-board.png?branch=master)](https://travis-ci.org/vkevroletin/text-board) [![Coverage Status](https://coveralls.io/repos/vkevroletin/text-board/badge.png?branch=master)](https://coveralls.io/r/vkevroletin/text-board?branch=master)
 
-
-Toy anonymous text board with live updates. Check [live example](http://vkevroletin.github.io/text-board/).
-
+Toy anonymous text board with live updates. If you're brave enough 
+then you can check [unmoderated live example](http://vkevroletin.github.io/text-board/).
+If someone made post which hurts you please contact me. I will reset database or will add button which
+deletes posts from board.
 
 Installation is simple
 ---
