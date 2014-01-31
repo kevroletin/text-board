@@ -24,6 +24,7 @@ require.config({
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
 		'app-directives': 'scripts/directives/main',
+		'app-services': 'scripts/services/main',
 		'app-main-ctrl': 'scripts/controllers/main',
 	},
 
