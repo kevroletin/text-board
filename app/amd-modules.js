@@ -17,9 +17,6 @@ require.config({
 		'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize',
 		'firebase': 'bower_components/firebase/firebase',
 		'angularfire': 'bower_components/angularfire/angularfire',
-		'angular-firebase': 'bower_components/angular-firebase/ng-firebase',
-		'angular-firebase-bindings': 'bower_components/angular-firebase/ng-firebase-binding',
-		'angular-firebase-collection': 'bower_components/angular-firebase/ng-firebase-collection',
 		/* application */
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
@@ -48,15 +45,6 @@ require.config({
 		},
 		'angularfire': {
 			deps: ['angular', 'firebase']
-		},
-		'angular-firebase': {
-			deps: ['angular', 'firebase']
-		},
-		'angular-firebase-bindings': {
-			deps: ['angular-firebase']
-		},
-		'angular-firebase-collection': {
-			deps: ['angular-firebase']
 		}
 	}
 });

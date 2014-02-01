@@ -10,10 +10,9 @@ bower_components/angular-sanitize/angular-sanitize.js
 bower_components/underscore/underscore.js
 bower_components/firebase/firebase.js
 bower_components/angularfire/angularfire.js
-bower_components/angular-firebase/ng-firebase.js
-bower_components/angular-firebase/ng-firebase-collection.js
 scripts/filters/filters.js
 scripts/directives/main.js
+scripts/services/main.js
 scripts/controllers/main.js
 scripts/app.js
 bower_components/requirejs-domready/domReady.js

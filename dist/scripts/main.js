@@ -35085,158 +35085,16 @@ define("firebase", (function (global) {
 
 define("angularfire", ["angular","firebase"], function(){});
 
-angular.module('ng-firebase', [])
-
-.value('Firebase', Firebase);
-
-define("angular-firebase", ["angular","firebase"], function(){});
-
-angular.module('ng-firebase')
-
-.factory('firebaseCollection', ['$timeout', 'Firebase', function($timeout, Firebase) {
-
-
-  /**
-   * @class item in the collection
-   * @param {DataSnapshot} ref      reference to the firebase data snapshot for this item
-   * @param {int} index             position of the item in the collection
-   *
-   * @property {DataSnapshot} $ref  reference to the firebase data snapshot for this item
-   * @property {String} $id         unique identifier for this item within the collection
-   * @property {int} $index         position of the item in the collection
-   */
-  function FirebaseItem(ref, index) {
-    this.$ref = ref.ref();
-    this.$id = ref.name();
-    this.$index = index;
-    angular.extend(this, ref.val());
-  }
-
-  /**
-   * create a firebaseCollection
-   * @param  {String} collectionUrl The firebase url where the collection lives
-   * @return {Array}                An array that will hold the items in the collection
-   */
-  return function(collectionUrl) {
-    var collection = [];
-    var indexes = {};
-    var collectionRef = new Firebase(collectionUrl);
-
-    function getIndex(prevId) {
-      return prevId ? indexes[prevId] + 1 : 0;
-    }
-    
-    function addChild(index, item) {
-      indexes[item.$id] = index;
-      collection.splice(index,0,item);
-      console.log('added: ', index, item);
-    }
-
-    function removeChild(id) {
-      var index = indexes[id];
-
-      // Remove the item from the collection
-      collection.splice(index, 1);
-      indexes[id] = undefined;
-
-      console.log('removed: ', id);
-    }
-
-    function updateChild (index, item) {
-      collection[index] = item;
-      console.log('changed: ', index, item);
-    }
-
-    function moveChild (from, to, item) {
-      collection.splice(from, 1);
-      collection.splice(to, 0, item);
-      updateIndexes(from, to);
-      console.log('moved: ', from, ' -> ', to, item);
-    }
-
-    function updateIndexes(from, to) {
-      var length = collection.length;
-      to = to || length;
-      if ( to > length ) { to = length; }
-      for(index = from; index < to; index++) {
-        var item = collection[index];
-        item.$index = indexes[item.$id] = index;
-      }
-    }
-
-    collectionRef.on('child_added', function(data, prevId) {
-      $timeout(function() {
-        var index = getIndex(prevId);
-        addChild(index, new FirebaseItem(data, index));
-        updateIndexes(index);
-      });
-    });
-
-    collectionRef.on('child_removed', function(data) {
-      $timeout(function() {
-        var id = data.name();
-        removeChild(id);
-        updateIndexes(indexes[id]);
-      });
-    });
-
-    collectionRef.on('child_changed', function(data, prevId) {
-      $timeout(function() {
-        var index = indexes[data.name()];
-        var newIndex = getIndex(prevId);
-        var item = new FirebaseItem(data, index);
-
-        updateChild(index, item);
-
-        if ( newIndex !== index ) {
-          moveChild(index, newIndex, item);
-        }
-
-      });
-    });
-
-    collectionRef.on('child_moved', function(ref, prevId) {
-      $timeout(function() {
-        var oldIndex = indexes[ref.name()];
-        var newIndex = getIndex(prevId);
-        var item = collection[oldIndex];
-
-        moveChild(oldIndex, newIndex, item);
-      });
-    });
-
-    collection.$add = function(item) {
-      collectionRef.push(item);
-    };
-    collection.$remove = function(itemOrId) {
-      var item = angular.isString(itemOrId) ? collection[itemOrId] : itemOrId;
-      item.$ref.remove();
-    };
-
-    collection.$update = function(itemOrId) {
-      var item = angular.isString(itemOrId) ? collection[itemOrId] : itemOrId;
-      var copy = {};
-      angular.forEach(item, function(value, key) {
-        if (key.indexOf('$') !== 0) {
-          copy[key] = value;
-        }
-      });
-      item.$ref.set(copy);
-    };
-
-    return collection;
-  };
-}]);
-
-define("angular-firebase-collection", ["angular-firebase"], function(){});
-
 
 
 define('app-filters',['underscore', 'angular'], function(_, angular) {
 	return angular.module('appFilters', [])
 	.filter('joinBy', function () {
 		return function (input, delimiter) {
-			return (input || []).join(delimiter || ',');
+			if ( _(input).isObject() ) {
+				input = _(input).map(function(v, k) { return v; });
+			}
+			return _(input || []).join(delimiter || ',');
 		};
 	})
 	.filter('withDefault', function () {
@@ -35272,15 +35130,18 @@ define('app-filters',['underscore', 'angular'], function(_, angular) {
 			});
 		};
 	})
-	.filter('inBrackets', function() {
+	.filter('lenInBrackets', function() {
 		return function(input) {
-			return _(_(input).map(function(x) {
-				if ( x ) {
-					return '(' + x + ')';
-				} else {
-					return '';
-				}
-			})).join(',');
+			var len;
+			if ( _(input).isObject() ) {
+				input = _(input).keys();
+			}
+			len = (input || []).length;
+			if ( len ) {
+				return '(' + len + ')';
+			} else {
+				return '';
+			}
 		};
 	});
 });
@@ -35328,20 +35189,105 @@ define('app-directives',['underscore', 'angular', 'app-filters'], function(_, an
 
 
 
-define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'angular-firebase-collection', 'app-directives'],
+define('app-services',['underscore', 'angular'],
+	   function(_, angular)
+{
+	return angular.module('appEnvUtils', [
+	])
+	.factory('envValidator', function($log) {
+		function validate(conf, reference) {
+			var res = {};
+			_(conf).map(function(v, k) {
+				if ( !reference[k] ) {
+					$log.error('invalid config key: ', k);
+				}
+			});
+			_(reference).each(function(v, k) {
+				if ( _(reference[k]).contains(conf[k]) ) {
+					res[k] = conf[k];
+				} else {
+					$log.error('invalid value ', conf[k], ' for key ', k);
+					res[k] = reference[k][0];
+				}
+			});
+			return res;
+		}
+		return validate;
+	})
+	.factory('env', function(envConfig, envReverence, envValidator) {
+		return envValidator(envConfig, envReverence);
+	});
+});
+
+
+
+define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services'],
 	   function(_, angular, Firebase)
 {
-	return angular.module('appMainCtrl', [
-		'appDirectives',
-		'ngCookies',
-		'ngResource',
-		'ngSanitize',
-		'firebase',
-		'ng-firebase'
+	angular.module('appConfig', [
+		'appEnvUtils'
 	])
 	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
+	.constant('envReverence', { backend: ['local', 'firebase'] })
+	.constant('envConfig', { backend: 'firebase' });
+
+	angular.module('appModel', [
+		'firebase',
+	])
+	.factory('posts', function($firebase, firebaseUrl, env) {
+		function makeLocalStorage(callback) {
+			var res =  [
+				{text: 'hello world'},
+				{text: 'I am the best'}
+			];
+			_(res).each(function(x, i) {
+				x.$id = i;
+			});
+			res.addPost = function(post) {
+				post.$id = res.length;
+				res.push(post);
+			};
+			res.addToField = function(post, field, data) {
+				post[field] = _(post[field] || []).push(data);
+			};
+			res.addComment = function(post, comment) {
+				res.addToField(post, 'comments', comment);
+			};
+			callback(res);
+			return res;
+		}
+		function connectToFirebase(callback) {
+			var res = $firebase(new Firebase(firebaseUrl + 'test'));
+
+			res.addPost = function(post) {
+				res.$add(post);
+			};
+			res.addToField = function(post, field, data) {
+				var path = firebaseUrl + 'test/' + post.$id + '/' + field;
+				$firebase(new Firebase(path)).$add( data );
+			};
+			res.addComment = function(post, comment) {
+				res.addToField(post, 'comments', comment);
+			};
+			res.$on('loaded', function() {
+				callback(res);
+			});
+			return res;
+		}
+		if ( env.backend === 'firebase' ) {
+			return connectToFirebase;
+		}
+		return makeLocalStorage;
+	});
+
+	return angular.module('appMainCtrl', [
+		'appConfig',
+		'appModel',
+		'appDirectives',
+		'ngCookies',
+	])
 	.controller('MainCtrl',
-		function ($scope, $firebase, $http, $log, $document, $timeout, $cookies, firebaseCollection, firebaseUrl)
+		function ($scope, $http, $log, $document, $timeout, $cookies, posts)
 	{
 		$scope.generateUsername = function() {
 			var alph = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
@@ -35362,24 +35308,26 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
-		$scope.posts = firebaseCollection(firebaseUrl + 'test');
+		$scope.posts = [{$id:0, title: 'Loading...'}];
+		posts(function(data) {
+			$scope.posts = [{$id:0, title: 'Rendering...'}];
+			$timeout(function() {
+				$scope.posts = data;
+			});
+		});
 		$scope.addNewPost = function() {
 			if ($scope.newPost &&
 				!_($scope.newPost).every(_.isEmpty))
 			{
 				$scope.newPost.comments = [];
-				$scope.posts.$add($scope.newPost);
+				$scope.posts.addPost($scope.newPost);
 				$scope.newPost = null;
 			}
 		};
 		/* used for like, dislike, delete features */
 		$scope.addToPostField = function(post, field) {
-			if (!post[field]) {
-				post[field] = [];
-			}
-			if (!_(post[field]).contains($scope.username)) {
-				_(post[field]).push($scope.username);
-				$scope.posts.$update(post);
+			if (!_(post[field] || []).contains($scope.username)) {
+				$scope.posts.addToField(post, field, $scope.username);
 			}
 		};
 		$scope.commentOnCtrlEnter = function(event, post) {
@@ -35410,15 +35358,10 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'ang
 			});
 		};
 		$scope.addComment = function(post) {
-			var path;
 			if ( _($scope.newComment).isEmpty() ) {
 				return;
 			}
-			if ( !post.comments ) {
-				post.comments = [];
-			}
-			path = firebaseUrl + 'test/' + post.$id + '/comments';
-			$firebase(new Firebase(path)).$add( $scope.newComment );
+			$scope.posts.addComment(post, $scope.newComment);
 			$scope.newComment = {};
 			$timeout(function() {
 				$document.find('.commentTextarea').focus();
@@ -35605,13 +35548,11 @@ require.config({
 		'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize',
 		'firebase': 'bower_components/firebase/firebase',
 		'angularfire': 'bower_components/angularfire/angularfire',
-		'angular-firebase': 'bower_components/angular-firebase/ng-firebase',
-		'angular-firebase-bindings': 'bower_components/angular-firebase/ng-firebase-binding',
-		'angular-firebase-collection': 'bower_components/angular-firebase/ng-firebase-collection',
 		/* application */
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
 		'app-directives': 'scripts/directives/main',
+		'app-services': 'scripts/services/main',
 		'app-main-ctrl': 'scripts/controllers/main',
 	},
 
@@ -35635,15 +35576,6 @@ require.config({
 		},
 		'angularfire': {
 			deps: ['angular', 'firebase']
-		},
-		'angular-firebase': {
-			deps: ['angular', 'firebase']
-		},
-		'angular-firebase-bindings': {
-			deps: ['angular-firebase']
-		},
-		'angular-firebase-collection': {
-			deps: ['angular-firebase']
 		}
 	}
 });

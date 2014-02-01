@@ -15,7 +15,6 @@
     "requirejs": "latest",
     "requirejs-domready": "latest",
     "requirejs-text": "latest",
-    "angular-firebase": "~0.0.2",
     "firebase": "~1.0.2",
     "angularfire": "~0.6.0"
   },

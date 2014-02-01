@@ -4,7 +4,10 @@ define(['underscore', 'angular'], function(_, angular) {
 	return angular.module('appFilters', [])
 	.filter('joinBy', function () {
 		return function (input, delimiter) {
-			return (input || []).join(delimiter || ',');
+			if ( _(input).isObject() ) {
+				input = _(input).map(function(v, k) { return v; });
+			}
+			return _(input || []).join(delimiter || ',');
 		};
 	})
 	.filter('withDefault', function () {
@@ -40,15 +43,18 @@ define(['underscore', 'angular'], function(_, angular) {
 			});
 		};
 	})
-	.filter('inBrackets', function() {
+	.filter('lenInBrackets', function() {
 		return function(input) {
-			return _(_(input).map(function(x) {
-				if ( x ) {
-					return '(' + x + ')';
-				} else {
-					return '';
-				}
-			})).join(',');
+			var len;
+			if ( _(input).isObject() ) {
+				input = _(input).keys();
+			}
+			len = (input || []).length;
+			if ( len ) {
+				return '(' + len + ')';
+			} else {
+				return '';
+			}
 		};
 	});
 });

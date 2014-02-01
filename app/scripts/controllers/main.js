@@ -1,21 +1,20 @@
 'use strict';
 
-define(['underscore', 'angular', 'firebase', 'angularfire', 'angular-firebase-collection', 'app-directives', 'app-services'],
+define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services'],
 	   function(_, angular, Firebase)
 {
 	angular.module('appConfig', [
 		'appEnvUtils'
 	])
-	.constant('firebaseUrl', 'https://picture-board-dev.firebaseio.com/')
+	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
 	.constant('envReverence', { backend: ['local', 'firebase'] })
 	.constant('envConfig', { backend: 'firebase' });
 
 	angular.module('appModel', [
 		'firebase',
-		'ng-firebase'
 	])
-	.factory('posts', function($log, $firebase, firebaseCollection, firebaseUrl, env) {
-		function makeLocalStorage() {
+	.factory('posts', function($firebase, firebaseUrl, env) {
+		function makeLocalStorage(callback) {
 			var res =  [
 				{text: 'hello world'},
 				{text: 'I am the best'}
@@ -33,27 +32,31 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'angular-firebase-co
 			res.addComment = function(post, comment) {
 				res.addToField(post, 'comments', comment);
 			};
+			callback(res);
 			return res;
 		}
-		function connectToFirebase() {
-			var res = firebaseCollection(firebaseUrl + 'test');
+		function connectToFirebase(callback) {
+			var res = $firebase(new Firebase(firebaseUrl + 'test'));
+
 			res.addPost = function(post) {
 				res.$add(post);
 			};
 			res.addToField = function(post, field, data) {
-				post[field] = _(post[field] || []).push(data);
-				res.$update(post);
+				var path = firebaseUrl + 'test/' + post.$id + '/' + field;
+				$firebase(new Firebase(path)).$add( data );
 			};
 			res.addComment = function(post, comment) {
-				var path = firebaseUrl + 'test/' + post.$id + '/comments';
-				$firebase(new Firebase(path)).$add( comment );
+				res.addToField(post, 'comments', comment);
 			};
+			res.$on('loaded', function() {
+				callback(res);
+			});
 			return res;
 		}
 		if ( env.backend === 'firebase' ) {
-			return connectToFirebase();
+			return connectToFirebase;
 		}
-		return makeLocalStorage();
+		return makeLocalStorage;
 	});
 
 	return angular.module('appMainCtrl', [
@@ -84,7 +87,13 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'angular-firebase-co
 		$scope.currentPage = 0;
 		$scope.pageSize = 30;
 		$scope.showForm = true;
-		$scope.posts = posts;
+		$scope.posts = [{$id:0, title: 'Loading...'}];
+		posts(function(data) {
+			$scope.posts = [{$id:0, title: 'Rendering...'}];
+			$timeout(function() {
+				$scope.posts = data;
+			});
+		});
 		$scope.addNewPost = function() {
 			if ($scope.newPost &&
 				!_($scope.newPost).every(_.isEmpty))
