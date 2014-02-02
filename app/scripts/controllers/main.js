@@ -1,19 +1,20 @@
 'use strict';
 
-define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services'],
+define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services', 'angular-cookies'],
 	   function(_, angular, Firebase)
 {
 	angular.module('appConfig', [
 		'appEnvUtils'
 	])
-	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
+	.constant('firebaseUrl', 'https://picture-board-new.firebaseio.com/')
 	.constant('envReverence', { backend: ['local', 'firebase'] })
 	.constant('envConfig', { backend: 'firebase' });
 
 	angular.module('appModel', [
+		'appConfig',
 		'firebase',
 	])
-	.factory('posts', function($firebase, firebaseUrl, env) {
+	.factory('posts', function($firebase, $log, firebaseUrl, env) {
 		function makeLocalStorage(callback) {
 			var res =  [
 				{text: 'hello world'},
@@ -32,6 +33,10 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'a
 			res.addComment = function(post, comment) {
 				res.addToField(post, 'comments', comment);
 			};
+			res.getBackendName = function() { return 'local'; };
+			res.deleteAll = function() {
+				res.length = 0;
+			};
 			callback(res);
 			return res;
 		}
@@ -48,9 +53,14 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'a
 			res.addComment = function(post, comment) {
 				res.addToField(post, 'comments', comment);
 			};
+			res.getBackendName = function() { return 'firebase'; };
 			res.$on('loaded', function() {
 				callback(res);
 			});
+			res.deleteAll = function() {
+				$log.error('deleteAll is not implemented ' +
+						   'for firebase backend');
+			};
 			return res;
 		}
 		if ( env.backend === 'firebase' ) {
