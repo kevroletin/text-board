@@ -9790,7 +9790,7 @@ if ( typeof module === "object" && module && typeof module.exports === "object" 
 })( window );
 
 /**
- * @license AngularJS v1.2.10-build.2176+sha.e020916
+ * @license AngularJS v1.2.11-build.2199+sha.074b067
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -9859,7 +9859,7 @@ function minErr(module) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.2.10-build.2176+sha.e020916/' +
+    message = message + '\nhttp://errors.angularjs.org/1.2.11-build.2199+sha.074b067/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i-2) + '=' +
@@ -11625,11 +11625,11 @@ function setupModuleLoader(window) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.2.10-build.2176+sha.e020916',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.2.11-build.2199+sha.074b067',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 2,
-  dot: 10,
-  codeName: 'augmented-serendipity'
+  dot: 11,
+  codeName: 'cryptocurrency-hyperdeflation'
 };
 
 
@@ -13199,17 +13199,16 @@ function annotate(fn) {
  * Here is an example of registering a service using
  * {@link AUTO.$provide#methods_service $provide.service(class)}.
  * <pre>
- *   $provide.service('ping', ['$http', function($http) {
- *     var Ping = function() {
- *       this.$http = $http;
- *     };
+ *   var Ping = function($http) {
+ *     this.$http = $http;
+ *   };
+ * 
+ *   Ping.$inject = ['$http'];
  *   
- *     Ping.prototype.send = function() {
- *       return this.$http.get('/ping');
- *     }; 
- *   
- *     return Ping;
- *   }]);
+ *   Ping.prototype.send = function() {
+ *     return this.$http.get('/ping');
+ *   };
+ *   $provide.service('ping', Ping);
  * </pre>
  * You would then inject and use this service like this:
  * <pre>
@@ -14910,13 +14909,17 @@ function $TemplateCacheProvider() {
       <div compile="html"></div>
     </div>
    </doc:source>
-   <doc:scenario>
+   <doc:protractor>
      it('should auto compile', function() {
-       expect(element('div[compile]').text()).toBe('Hello Angular');
-       input('html').enter('{{name}}!');
-       expect(element('div[compile]').text()).toBe('Angular!');
+       var textarea = $('textarea');
+       var output = $('div[compile]');
+       // The initial state reads 'Hello Angular'.
+       expect(output.getText()).toBe('Hello Angular');
+       textarea.clear();
+       textarea.sendKeys('{{name}}!');
+       expect(output.getText()).toBe('Angular!');
      });
-   </doc:scenario>
+   </doc:protractor>
  </doc:example>
 
  *
@@ -16193,9 +16196,13 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
                 linkNode = $compileNode[0];
 
             if (beforeTemplateLinkNode !== beforeTemplateCompileNode) {
+              var oldClasses = beforeTemplateLinkNode.className;
               // it was cloned therefore we have to clone as well.
               linkNode = jqLiteClone(compileNode);
               replaceWith(linkRootElement, jqLite(beforeTemplateLinkNode), linkNode);
+
+              // Copy in CSS classes from original node
+              safeAddClass(jqLite(linkNode), oldClasses);
             }
             if (afterTemplateNodeLinkFn.transclude) {
               childBoundTranscludeFn = createBoundTranscludeFn(scope, afterTemplateNodeLinkFn.transclude);
@@ -17216,14 +17223,14 @@ function $HttpProvider() {
       <option>JSONP</option>
     </select>
     <input type="text" ng-model="url" size="80"/>
-    <button ng-click="fetch()">fetch</button><br>
-    <button ng-click="updateModel('GET', 'http-hello.html')">Sample GET</button>
-    <button
+    <button id="fetchbtn" ng-click="fetch()">fetch</button><br>
+    <button id="samplegetbtn" ng-click="updateModel('GET', 'http-hello.html')">Sample GET</button>
+    <button id="samplejsonpbtn"
       ng-click="updateModel('JSONP',
                     'http://angularjs.org/greet.php?callback=JSON_CALLBACK&name=Super%20Hero')">
       Sample JSONP
     </button>
-    <button
+    <button id="invalidjsonpbtn"
       ng-click="updateModel('JSONP', 'http://angularjs.org/doesntexist&callback=JSON_CALLBACK')">
         Invalid JSONP
       </button>
@@ -17260,27 +17267,34 @@ function $HttpProvider() {
 <file name="http-hello.html">
   Hello, $http!
 </file>
-<file name="scenario.js">
+<file name="protractorTest.js">
+  var status = element(by.binding('status'));
+  var data = element(by.binding('data'));
+  var fetchBtn = element(by.id('fetchbtn'));
+  var sampleGetBtn = element(by.id('samplegetbtn'));
+  var sampleJsonpBtn = element(by.id('samplejsonpbtn'));
+  var invalidJsonpBtn = element(by.id('invalidjsonpbtn'));
+
   it('should make an xhr GET request', function() {
-    element(':button:contains("Sample GET")').click();
-    element(':button:contains("fetch")').click();
-    expect(binding('status')).toBe('200');
-    expect(binding('data')).toMatch(/Hello, \$http!/);
+    sampleGetBtn.click();
+    fetchBtn.click();
+    expect(status.getText()).toMatch('200');
+    expect(data.getText()).toMatch(/Hello, \$http!/)
   });
 
   it('should make a JSONP request to angularjs.org', function() {
-    element(':button:contains("Sample JSONP")').click();
-    element(':button:contains("fetch")').click();
-    expect(binding('status')).toBe('200');
-    expect(binding('data')).toMatch(/Super Hero!/);
+    sampleJsonpBtn.click();
+    fetchBtn.click();
+    expect(status.getText()).toMatch('200');
+    expect(data.getText()).toMatch(/Super Hero!/);
   });
 
   it('should make JSONP request to invalid URL and invoke the error handler',
       function() {
-    element(':button:contains("Invalid JSONP")').click();
-    element(':button:contains("fetch")').click();
-    expect(binding('status')).toBe('0');
-    expect(binding('data')).toBe('Request failed');
+    invalidJsonpBtn.click();
+    fetchBtn.click();
+    expect(status.getText()).toMatch('0');
+    expect(data.getText()).toMatch('Request failed');
   });
 </file>
 </example>
@@ -17862,11 +17876,11 @@ var $interpolateMinErr = minErr('$interpolate');
     //demo.label//
 </div>
 </doc:source>
-<doc:scenario>
- it('should interpolate binding with custom symbols', function() {
-  expect(binding('demo.label')).toBe('This binding is brought you by // interpolation symbols.');
- });
-</doc:scenario>
+<doc:protractor>
+  it('should interpolate binding with custom symbols', function() {
+    expect(element(by.binding('demo.label')).getText()).toBe('This binding is brought you by // interpolation symbols.');
+  });
+</doc:protractor>
 </doc:example>
  */
 function $InterpolateProvider() {
@@ -20691,7 +20705,7 @@ function qFactory(nextTick, exceptionHandler) {
 
 
       reject: function(reason) {
-        deferred.resolve(reject(reason));
+        deferred.resolve(createInternalRejectedPromise(reason));
       },
 
 
@@ -20848,6 +20862,12 @@ function qFactory(nextTick, exceptionHandler) {
    * @returns {Promise} Returns a promise that was already resolved as rejected with the `reason`.
    */
   var reject = function(reason) {
+    var result = defer();
+    result.reject(reason);
+    return result.promise;
+  };
+
+  var createInternalRejectedPromise = function(reason) {
     return {
       then: function(callback, errback) {
         var result = defer();
@@ -21908,7 +21928,7 @@ function $RootScopeProvider(){
        * onto the {@link ng.$exceptionHandler $exceptionHandler} service.
        *
        * @param {string} name Event name to emit.
-       * @param {...*} args Optional set of arguments which will be passed onto the event listeners.
+       * @param {...*} args Optional one or more arguments which will be passed onto the event listeners.
        * @return {Object} Event object (see {@link ng.$rootScope.Scope#methods_$on}).
        */
       $emit: function(name, args) {
@@ -21976,7 +21996,7 @@ function $RootScopeProvider(){
        * onto the {@link ng.$exceptionHandler $exceptionHandler} service.
        *
        * @param {string} name Event name to broadcast.
-       * @param {...*} args Optional set of arguments which will be passed onto the event listeners.
+       * @param {...*} args Optional one or more arguments which will be passed onto the event listeners.
        * @return {Object} Event object, see {@link ng.$rootScope.Scope#methods_$on}
        */
       $broadcast: function(name, args) {
@@ -22768,13 +22788,15 @@ function $SceDelegateProvider() {
 ]
 </file>
 
-<file name="scenario.js">
+<file name="protractorTest.js">
   describe('SCE doc demo', function() {
     it('should sanitize untrusted values', function() {
-      expect(element('.htmlComment').html()).toBe('<span>Is <i>anyone</i> reading this?</span>');
+      expect(element(by.css('.htmlComment')).getInnerHtml())
+          .toBe('<span>Is <i>anyone</i> reading this?</span>');
     });
+
     it('should NOT sanitize explicitly trusted values', function() {
-      expect(element('#explicitlyTrustedHtml').html()).toBe(
+      expect(element(by.id('explicitlyTrustedHtml')).getInnerHtml()).toBe(
           '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
           'sanitization.&quot;">Hover over this text.</span>');
     });
@@ -23533,13 +23555,13 @@ function urlIsSameOrigin(requestUrl) {
          <button ng-click="doGreeting(greeting)">ALERT</button>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
       it('should display the greeting in the input box', function() {
-       input('greeting').enter('Hello, E2E Tests');
+       element(by.model('greeting')).sendKeys('Hello, E2E Tests');
        // If we click the button it will block the test runner
        // element(':button').click();
       });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 function $WindowProvider(){
@@ -23748,35 +23770,47 @@ function $FilterProvider($provide) {
        Equality <input type="checkbox" ng-model="strict"><br>
        <table id="searchObjResults">
          <tr><th>Name</th><th>Phone</th></tr>
-         <tr ng-repeat="friend in friends | filter:search:strict">
-           <td>{{friend.name}}</td>
-           <td>{{friend.phone}}</td>
+         <tr ng-repeat="friendObj in friends | filter:search:strict">
+           <td>{{friendObj.name}}</td>
+           <td>{{friendObj.phone}}</td>
          </tr>
        </table>
      </doc:source>
-     <doc:scenario>
-       it('should search across all fields when filtering with a string', function() {
-         input('searchText').enter('m');
-         expect(repeater('#searchTextResults tr', 'friend in friends').column('friend.name')).
-           toEqual(['Mary', 'Mike', 'Adam']);
+     <doc:protractor>
+       var expectFriendNames = function(expectedNames, key) {
+         element.all(by.repeater(key + ' in friends').column(key + '.name')).then(function(arr) {
+           arr.forEach(function(wd, i) {
+             expect(wd.getText()).toMatch(expectedNames[i]);
+           });
+         });
+       };
 
-         input('searchText').enter('76');
-         expect(repeater('#searchTextResults tr', 'friend in friends').column('friend.name')).
-           toEqual(['John', 'Julie']);
+       it('should search across all fields when filtering with a string', function() {
+         var searchText = element(by.model('searchText'));
+         searchText.clear();
+         searchText.sendKeys('m');
+         expectFriendNames(['Mary', 'Mike', 'Adam'], 'friend');
+
+         searchText.clear();
+         searchText.sendKeys('76');
+         expectFriendNames(['John', 'Julie'], 'friend');
        });
 
        it('should search in specific fields when filtering with a predicate object', function() {
-         input('search.$').enter('i');
-         expect(repeater('#searchObjResults tr', 'friend in friends').column('friend.name')).
-           toEqual(['Mary', 'Mike', 'Julie', 'Juliette']);
+         var searchAny = element(by.model('search.$'));
+         searchAny.clear();
+         searchAny.sendKeys('i');
+         expectFriendNames(['Mary', 'Mike', 'Julie', 'Juliette'], 'friendObj');
        });
        it('should use a equal comparison when comparator is true', function() {
-         input('search.name').enter('Julie');
-         input('strict').check();
-         expect(repeater('#searchObjResults tr', 'friend in friends').column('friend.name')).
-           toEqual(['Julie']);
+         var searchName = element(by.model('search.name'));
+         var strict = element(by.model('strict'));
+         searchName.clear();
+         searchName.sendKeys('Julie');
+         strict.click();
+         expectFriendNames(['Julie'], 'friendObj');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 function filterFilter() {
@@ -23854,7 +23888,7 @@ function filterFilter() {
           (function(path) {
             if (typeof expression[path] == 'undefined') return;
             predicates.push(function(value) {
-              return search(path == '$' ? value : getter(value, path), expression[path]);
+              return search(path == '$' ? value : (value && value[path]), expression[path]);
             });
           })(key);
         }
@@ -23900,21 +23934,22 @@ function filterFilter() {
        </script>
        <div ng-controller="Ctrl">
          <input type="number" ng-model="amount"> <br>
-         default currency symbol ($): {{amount | currency}}<br>
-         custom currency identifier (USD$): {{amount | currency:"USD$"}}
+         default currency symbol ($): <span id="currency-default">{{amount | currency}}</span><br>
+         custom currency identifier (USD$): <span>{{amount | currency:"USD$"}}</span>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should init with 1234.56', function() {
-         expect(binding('amount | currency')).toBe('$1,234.56');
-         expect(binding('amount | currency:"USD$"')).toBe('USD$1,234.56');
+         expect(element(by.id('currency-default')).getText()).toBe('$1,234.56');
+         expect(element(by.binding('amount | currency:"USD$"')).getText()).toBe('USD$1,234.56');
        });
        it('should update', function() {
-         input('amount').enter('-1234');
-         expect(binding('amount | currency')).toBe('($1,234.00)');
-         expect(binding('amount | currency:"USD$"')).toBe('(USD$1,234.00)');
+         element(by.model('amount')).clear();
+         element(by.model('amount')).sendKeys('-1234');
+         expect(element(by.id('currency-default')).getText()).toBe('($1,234.00)');
+         expect(element(by.binding('amount | currency:"USD$"')).getText()).toBe('(USD$1,234.00)');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 currencyFilter.$inject = ['$locale'];
@@ -23953,25 +23988,26 @@ function currencyFilter($locale) {
        </script>
        <div ng-controller="Ctrl">
          Enter number: <input ng-model='val'><br>
-         Default formatting: {{val | number}}<br>
-         No fractions: {{val | number:0}}<br>
-         Negative number: {{-val | number:4}}
+         Default formatting: <span id='number-default'>{{val | number}}</span><br>
+         No fractions: <span>{{val | number:0}}</span><br>
+         Negative number: <span>{{-val | number:4}}</span>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should format numbers', function() {
-         expect(binding('val | number')).toBe('1,234.568');
-         expect(binding('val | number:0')).toBe('1,235');
-         expect(binding('-val | number:4')).toBe('-1,234.5679');
+         expect(element(by.id('number-default')).getText()).toBe('1,234.568');
+         expect(element(by.binding('val | number:0')).getText()).toBe('1,235');
+         expect(element(by.binding('-val | number:4')).getText()).toBe('-1,234.5679');
        });
 
        it('should update', function() {
-         input('val').enter('3374.333');
-         expect(binding('val | number')).toBe('3,374.333');
-         expect(binding('val | number:0')).toBe('3,374');
-         expect(binding('-val | number:4')).toBe('-3,374.3330');
-       });
-     </doc:scenario>
+         element(by.model('val')).clear();
+         element(by.model('val')).sendKeys('3374.333');
+         expect(element(by.id('number-default')).getText()).toBe('3,374.333');
+         expect(element(by.binding('val | number:0')).getText()).toBe('3,374');
+         expect(element(by.binding('-val | number:4')).getText()).toBe('-3,374.3330');
+      });
+     </doc:protractor>
    </doc:example>
  */
 
@@ -24201,22 +24237,22 @@ var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZE']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+
    <doc:example>
      <doc:source>
        <span ng-non-bindable>{{1288323623006 | date:'medium'}}</span>:
-           {{1288323623006 | date:'medium'}}<br>
+           <span>{{1288323623006 | date:'medium'}}</span><br>
        <span ng-non-bindable>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span>:
-          {{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}<br>
+          <span>{{1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span><br>
        <span ng-non-bindable>{{1288323623006 | date:'MM/dd/yyyy @ h:mma'}}</span>:
-          {{'1288323623006' | date:'MM/dd/yyyy @ h:mma'}}<br>
+          <span>{{'1288323623006' | date:'MM/dd/yyyy @ h:mma'}}</span><br>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should format date', function() {
-         expect(binding("1288323623006 | date:'medium'")).
+         expect(element(by.binding("1288323623006 | date:'medium'")).getText()).
             toMatch(/Oct 2\d, 2010 \d{1,2}:\d{2}:\d{2} (AM|PM)/);
-         expect(binding("1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'")).
+         expect(element(by.binding("1288323623006 | date:'yyyy-MM-dd HH:mm:ss Z'")).getText()).
             toMatch(/2010\-10\-2\d \d{2}:\d{2}:\d{2} (\-|\+)?\d{4}/);
-         expect(binding("'1288323623006' | date:'MM/dd/yyyy @ h:mma'")).
+         expect(element(by.binding("'1288323623006' | date:'MM/dd/yyyy @ h:mma'")).getText()).
             toMatch(/10\/2\d\/2010 @ \d{1,2}:\d{2}(AM|PM)/);
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 dateFilter.$inject = ['$locale'];
@@ -24315,11 +24351,11 @@ function dateFilter($locale) {
      <doc:source>
        <pre>{{ {'name':'value'} | json }}</pre>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should jsonify filtered objects', function() {
-         expect(binding("{'name':'value'}")).toMatch(/\{\n  "name": ?"value"\n}/);
+         expect(element(by.binding("{'name':'value'}")).getText()).toMatch(/\{\n  "name": ?"value"\n}/);
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  *
  */
@@ -24387,28 +24423,37 @@ var uppercaseFilter = valueFn(uppercase);
          <p>Output letters: {{ letters | limitTo:letterLimit }}</p>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
+       var numLimitInput = element(by.model('numLimit'));
+       var letterLimitInput = element(by.model('letterLimit'));
+       var limitedNumbers = element(by.binding('numbers | limitTo:numLimit'));
+       var limitedLetters = element(by.binding('letters | limitTo:letterLimit'));
+
        it('should limit the number array to first three items', function() {
-         expect(element('.doc-example-live input[ng-model=numLimit]').val()).toBe('3');
-         expect(element('.doc-example-live input[ng-model=letterLimit]').val()).toBe('3');
-         expect(binding('numbers | limitTo:numLimit')).toEqual('[1,2,3]');
-         expect(binding('letters | limitTo:letterLimit')).toEqual('abc');
+         expect(numLimitInput.getAttribute('value')).toBe('3');
+         expect(letterLimitInput.getAttribute('value')).toBe('3');
+         expect(limitedNumbers.getText()).toEqual('Output numbers: [1,2,3]');
+         expect(limitedLetters.getText()).toEqual('Output letters: abc');
        });
 
        it('should update the output when -3 is entered', function() {
-         input('numLimit').enter(-3);
-         input('letterLimit').enter(-3);
-         expect(binding('numbers | limitTo:numLimit')).toEqual('[7,8,9]');
-         expect(binding('letters | limitTo:letterLimit')).toEqual('ghi');
+         numLimitInput.clear();
+         numLimitInput.sendKeys('-3');
+         letterLimitInput.clear();
+         letterLimitInput.sendKeys('-3');
+         expect(limitedNumbers.getText()).toEqual('Output numbers: [7,8,9]');
+         expect(limitedLetters.getText()).toEqual('Output letters: ghi');
        });
 
        it('should not exceed the maximum size of input array', function() {
-         input('numLimit').enter(100);
-         input('letterLimit').enter(100);
-         expect(binding('numbers | limitTo:numLimit')).toEqual('[1,2,3,4,5,6,7,8,9]');
-         expect(binding('letters | limitTo:letterLimit')).toEqual('abcdefghi');
+         numLimitInput.clear();
+         numLimitInput.sendKeys('100');
+         letterLimitInput.clear();
+         letterLimitInput.sendKeys('100');
+         expect(limitedNumbers.getText()).toEqual('Output numbers: [1,2,3,4,5,6,7,8,9]');
+         expect(limitedLetters.getText()).toEqual('Output letters: abcdefghi');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 function limitToFilter(){
@@ -24509,29 +24554,6 @@ function limitToFilter(){
          </table>
        </div>
      </doc:source>
-     <doc:scenario>
-       it('should be reverse ordered by aged', function() {
-         expect(binding('predicate')).toBe('-age');
-         expect(repeater('table.friend', 'friend in friends').column('friend.age')).
-           toEqual(['35', '29', '21', '19', '10']);
-         expect(repeater('table.friend', 'friend in friends').column('friend.name')).
-           toEqual(['Adam', 'Julie', 'Mike', 'Mary', 'John']);
-       });
-
-       it('should reorder the table when user selects different predicate', function() {
-         element('.doc-example-live a:contains("Name")').click();
-         expect(repeater('table.friend', 'friend in friends').column('friend.name')).
-           toEqual(['Adam', 'John', 'Julie', 'Mary', 'Mike']);
-         expect(repeater('table.friend', 'friend in friends').column('friend.age')).
-           toEqual(['35', '10', '29', '19', '21']);
-
-         element('.doc-example-live a:contains("Phone")').click();
-         expect(repeater('table.friend', 'friend in friends').column('friend.phone')).
-           toEqual(['555-9876', '555-8765', '555-5678', '555-4321', '555-1212']);
-         expect(repeater('table.friend', 'friend in friends').column('friend.name')).
-           toEqual(['Mary', 'Julie', 'Adam', 'Mike', 'John']);
-       });
-     </doc:scenario>
    </doc:example>
  */
 orderByFilter.$inject = ['$parse'];
@@ -24685,46 +24707,48 @@ var htmlAnchorDirective = valueFn({
         <a id="link-5" name="xxx" ng-click="value = 5">anchor</a> (no link)<br />
         <a id="link-6" ng-href="{{value}}">link</a> (link, change location)
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should execute ng-click but not reload when href without value', function() {
-          element('#link-1').click();
-          expect(input('value').val()).toEqual('1');
-          expect(element('#link-1').attr('href')).toBe("");
+          element(by.id('link-1')).click();
+          expect(element(by.model('value')).getAttribute('value')).toEqual('1');
+          expect(element(by.id('link-1')).getAttribute('href')).toBe('');
         });
 
         it('should execute ng-click but not reload when href empty string', function() {
-          element('#link-2').click();
-          expect(input('value').val()).toEqual('2');
-          expect(element('#link-2').attr('href')).toBe("");
+          element(by.id('link-2')).click();
+          expect(element(by.model('value')).getAttribute('value')).toEqual('2');
+          expect(element(by.id('link-2')).getAttribute('href')).toBe('');
         });
 
         it('should execute ng-click and change url when ng-href specified', function() {
-          expect(element('#link-3').attr('href')).toBe("/123");
+          expect(element(by.id('link-3')).getAttribute('href')).toMatch(/\/123$/);
 
-          element('#link-3').click();
-          expect(browser().window().path()).toEqual('/123');
+          element(by.id('link-3')).click();
+
+          expect(browser.driver.getCurrentUrl()).toMatch(/\/123$/);
         });
 
         it('should execute ng-click but not reload when href empty string and name specified', function() {
-          element('#link-4').click();
-          expect(input('value').val()).toEqual('4');
-          expect(element('#link-4').attr('href')).toBe('');
+          element(by.id('link-4')).click();
+          expect(element(by.model('value')).getAttribute('value')).toEqual('4');
+          expect(element(by.id('link-4')).getAttribute('href')).toBe('');
         });
 
         it('should execute ng-click but not reload when no href but name specified', function() {
-          element('#link-5').click();
-          expect(input('value').val()).toEqual('5');
-          expect(element('#link-5').attr('href')).toBe(undefined);
+          element(by.id('link-5')).click();
+          expect(element(by.model('value')).getAttribute('value')).toEqual('5');
+          expect(element(by.id('link-5')).getAttribute('href')).toBe(null);
         });
 
         it('should only change url when only ng-href', function() {
-          input('value').enter('6');
-          expect(element('#link-6').attr('href')).toBe('6');
+          element(by.model('value')).clear();
+          element(by.model('value')).sendKeys('6');
+          expect(element(by.id('link-6')).getAttribute('href')).toMatch(/\/6$/);
 
-          element('#link-6').click();
-          expect(browser().location().url()).toEqual('/6');
+          element(by.id('link-6')).click();
+          expect(browser.getCurrentUrl()).toMatch(/\/6$/);
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 
@@ -24809,13 +24833,13 @@ var htmlAnchorDirective = valueFn({
         Click me to toggle: <input type="checkbox" ng-model="checked"><br/>
         <button ng-model="button" ng-disabled="checked">Button</button>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should toggle button', function() {
-          expect(element('.doc-example-live :button').prop('disabled')).toBeFalsy();
-          input('checked').check();
-          expect(element('.doc-example-live :button').prop('disabled')).toBeTruthy();
+          expect(element(by.css('.doc-example-live button')).getAttribute('disabled')).toBeFalsy();
+          element(by.model('checked')).click();
+          expect(element(by.css('.doc-example-live button')).getAttribute('disabled')).toBeTruthy();
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  *
  * @element INPUT
@@ -24844,13 +24868,13 @@ var htmlAnchorDirective = valueFn({
         Check me to check both: <input type="checkbox" ng-model="master"><br/>
         <input id="checkSlave" type="checkbox" ng-checked="master">
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should check both checkBoxes', function() {
-          expect(element('.doc-example-live #checkSlave').prop('checked')).toBeFalsy();
-          input('master').check();
-          expect(element('.doc-example-live #checkSlave').prop('checked')).toBeTruthy();
+          expect(element(by.id('checkSlave')).getAttribute('checked')).toBeFalsy();
+          element(by.model('master')).click();
+          expect(element(by.id('checkSlave')).getAttribute('checked')).toBeTruthy();
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  *
  * @element INPUT
@@ -24879,13 +24903,13 @@ var htmlAnchorDirective = valueFn({
         Check me to make text readonly: <input type="checkbox" ng-model="checked"><br/>
         <input type="text" ng-readonly="checked" value="I'm Angular"/>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should toggle readonly attr', function() {
-          expect(element('.doc-example-live :text').prop('readonly')).toBeFalsy();
-          input('checked').check();
-          expect(element('.doc-example-live :text').prop('readonly')).toBeTruthy();
+          expect(element(by.css('.doc-example-live [type="text"]')).getAttribute('readonly')).toBeFalsy();
+          element(by.model('checked')).click();
+          expect(element(by.css('.doc-example-live [type="text"]')).getAttribute('readonly')).toBeTruthy();
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  *
  * @element INPUT
@@ -24918,13 +24942,13 @@ var htmlAnchorDirective = valueFn({
           <option id="greet" ng-selected="selected">Greetings!</option>
         </select>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should select Greetings!', function() {
-          expect(element('.doc-example-live #greet').prop('selected')).toBeFalsy();
-          input('selected').check();
-          expect(element('.doc-example-live #greet').prop('selected')).toBeTruthy();
+          expect(element(by.id('greet')).getAttribute('selected')).toBeFalsy();
+          element(by.model('selected')).click();
+          expect(element(by.id('greet')).getAttribute('selected')).toBeTruthy();
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  *
  * @element OPTION
@@ -24954,13 +24978,13 @@ var htmlAnchorDirective = valueFn({
             <summary>Show/Hide me</summary>
          </details>
        </doc:source>
-       <doc:scenario>
+       <doc:protractor>
          it('should toggle open', function() {
-           expect(element('#details').prop('open')).toBeFalsy();
-           input('open').check();
-           expect(element('#details').prop('open')).toBeTruthy();
+           expect(element(by.id('details')).getAttribute('open')).toBeFalsy();
+           element(by.model('open')).click();
+           expect(element(by.id('details')).getAttribute('open')).toBeTruthy();
          });
-       </doc:scenario>
+       </doc:protractor>
      </doc:example>
  *
  * @element DETAILS
@@ -25319,18 +25343,27 @@ function FormController(element, attrs) {
          <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br>
         </form>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should initialize to model', function() {
-         expect(binding('userType')).toEqual('guest');
-         expect(binding('myForm.input.$valid')).toEqual('true');
+          var userType = element(by.binding('userType'));
+          var valid = element(by.binding('myForm.input.$valid'));
+
+          expect(userType.getText()).toContain('guest');
+          expect(valid.getText()).toContain('true');
         });
 
         it('should be invalid if empty', function() {
-         input('userType').enter('');
-         expect(binding('userType')).toEqual('');
-         expect(binding('myForm.input.$valid')).toEqual('false');
+          var userType = element(by.binding('userType'));
+          var valid = element(by.binding('myForm.input.$valid'));
+          var userInput = element(by.model('userType'));
+
+          userInput.clear();
+          userInput.sendKeys('');
+
+          expect(userType.getText()).toEqual('userType =');
+          expect(valid.getText()).toContain('false');
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 var formDirectiveFactory = function(isNgForm) {
@@ -25455,29 +25488,31 @@ var inputType = {
            <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
           </form>
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
+          var text = element(by.binding('text'));
+          var valid = element(by.binding('myForm.input.$valid'));
+          var input = element(by.model('text'));
+
           it('should initialize to model', function() {
-            expect(binding('text')).toEqual('guest');
-            expect(binding('myForm.input.$valid')).toEqual('true');
+            expect(text.getText()).toContain('guest');
+            expect(valid.getText()).toContain('true');
           });
 
           it('should be invalid if empty', function() {
-            input('text').enter('');
-            expect(binding('text')).toEqual('');
-            expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('');
+
+            expect(text.getText()).toEqual('text =');
+            expect(valid.getText()).toContain('false');
           });
 
           it('should be invalid if multi word', function() {
-            input('text').enter('hello world');
-            expect(binding('myForm.input.$valid')).toEqual('false');
-          });
+            input.clear();
+            input.sendKeys('hello world');
 
-          it('should not be trimmed', function() {
-            input('text').enter('untrimmed ');
-            expect(binding('text')).toEqual('untrimmed ');
-            expect(binding('myForm.input.$valid')).toEqual('true');
+            expect(valid.getText()).toContain('false');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'text': textInputType,
@@ -25531,24 +25566,30 @@ var inputType = {
            <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
           </form>
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
+          var value = element(by.binding('value'));
+          var valid = element(by.binding('myForm.input.$valid'));
+          var input = element(by.model('value'));
+
           it('should initialize to model', function() {
-           expect(binding('value')).toEqual('12');
-           expect(binding('myForm.input.$valid')).toEqual('true');
+            expect(value.getText()).toContain('12');
+            expect(valid.getText()).toContain('true');
           });
 
           it('should be invalid if empty', function() {
-           input('value').enter('');
-           expect(binding('value')).toEqual('');
-           expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('');
+            expect(value.getText()).toEqual('value =');
+            expect(valid.getText()).toContain('false');
           });
 
           it('should be invalid if over max', function() {
-           input('value').enter('123');
-           expect(binding('value')).toEqual('');
-           expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('123');
+            expect(value.getText()).toEqual('value =');
+            expect(valid.getText()).toContain('false');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'number': numberInputType,
@@ -25600,23 +25641,31 @@ var inputType = {
            <tt>myForm.$error.url = {{!!myForm.$error.url}}</tt><br/>
           </form>
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
+          var text = element(by.binding('text'));
+          var valid = element(by.binding('myForm.input.$valid'));
+          var input = element(by.model('text'));
+
           it('should initialize to model', function() {
-            expect(binding('text')).toEqual('http://google.com');
-            expect(binding('myForm.input.$valid')).toEqual('true');
+            expect(text.getText()).toContain('http://google.com');
+            expect(valid.getText()).toContain('true');
           });
 
           it('should be invalid if empty', function() {
-            input('text').enter('');
-            expect(binding('text')).toEqual('');
-            expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('');
+
+            expect(text.getText()).toEqual('text =');
+            expect(valid.getText()).toContain('false');
           });
 
           it('should be invalid if not url', function() {
-            input('text').enter('xxx');
-            expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('box');
+
+            expect(valid.getText()).toContain('false');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'url': urlInputType,
@@ -25668,23 +25717,30 @@ var inputType = {
              <tt>myForm.$error.email = {{!!myForm.$error.email}}</tt><br/>
            </form>
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
+          var text = element(by.binding('text'));
+          var valid = element(by.binding('myForm.input.$valid'));
+          var input = element(by.model('text'));
+          
           it('should initialize to model', function() {
-            expect(binding('text')).toEqual('me@example.com');
-            expect(binding('myForm.input.$valid')).toEqual('true');
+            expect(text.getText()).toContain('me@example.com');
+            expect(valid.getText()).toContain('true');
           });
 
           it('should be invalid if empty', function() {
-            input('text').enter('');
-            expect(binding('text')).toEqual('');
-            expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('');
+            expect(text.getText()).toEqual('text =');
+            expect(valid.getText()).toContain('false');
           });
 
           it('should be invalid if not email', function() {
-            input('text').enter('xxx');
-            expect(binding('myForm.input.$valid')).toEqual('false');
+            input.clear();
+            input.sendKeys('xxx');
+
+            expect(valid.getText()).toContain('false');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'email': emailInputType,
@@ -25725,14 +25781,17 @@ var inputType = {
           </form>
           Note that `ng-value="specialValue"` sets radio item's value to be the value of `$scope.specialValue`.
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
           it('should change state', function() {
-            expect(binding('color')).toEqual('"blue"');
+            var color = element(by.binding('color'));
 
-            input('color').select('red');
-            expect(binding('color')).toEqual('"red"');
+            expect(color.getText()).toContain('blue');
+
+            element.all(by.model('color')).get(0).click();
+
+            expect(color.getText()).toContain('red');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'radio': radioInputType,
@@ -25769,17 +25828,21 @@ var inputType = {
            <tt>value2 = {{value2}}</tt><br/>
           </form>
         </doc:source>
-        <doc:scenario>
+        <doc:protractor>
           it('should change state', function() {
-            expect(binding('value1')).toEqual('true');
-            expect(binding('value2')).toEqual('YES');
+            var value1 = element(by.binding('value1'));
+            var value2 = element(by.binding('value2'));
 
-            input('value1').check();
-            input('value2').check();
-            expect(binding('value1')).toEqual('false');
-            expect(binding('value2')).toEqual('NO');
+            expect(value1.getText()).toContain('true');
+            expect(value2.getText()).toContain('YES');
+            
+            element(by.model('value1')).click();
+            element(by.model('value2')).click();
+
+            expect(value1.getText()).toContain('false');
+            expect(value2.getText()).toContain('NO');
           });
-        </doc:scenario>
+        </doc:protractor>
       </doc:example>
    */
   'checkbox': checkboxInputType,
@@ -26132,44 +26195,59 @@ function checkboxInputType(scope, element, attr, ctrl) {
          <tt>myForm.$error.maxlength = {{!!myForm.$error.maxlength}}</tt><br>
        </div>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
+        var user = element(by.binding('{{user}}'));
+        var userNameValid = element(by.binding('myForm.userName.$valid'));
+        var lastNameValid = element(by.binding('myForm.lastName.$valid'));
+        var lastNameError = element(by.binding('myForm.lastName.$error'));
+        var formValid = element(by.binding('myForm.$valid'));
+        var userNameInput = element(by.model('user.name'));
+        var userLastInput = element(by.model('user.last'));
+
         it('should initialize to model', function() {
-          expect(binding('user')).toEqual('{"name":"guest","last":"visitor"}');
-          expect(binding('myForm.userName.$valid')).toEqual('true');
-          expect(binding('myForm.$valid')).toEqual('true');
+          expect(user.getText()).toContain('{"name":"guest","last":"visitor"}');
+          expect(userNameValid.getText()).toContain('true');
+          expect(formValid.getText()).toContain('true');
         });
 
         it('should be invalid if empty when required', function() {
-          input('user.name').enter('');
-          expect(binding('user')).toEqual('{"last":"visitor"}');
-          expect(binding('myForm.userName.$valid')).toEqual('false');
-          expect(binding('myForm.$valid')).toEqual('false');
+          userNameInput.clear();
+          userNameInput.sendKeys('');
+
+          expect(user.getText()).toContain('{"last":"visitor"}');
+          expect(userNameValid.getText()).toContain('false');
+          expect(formValid.getText()).toContain('false');
         });
 
         it('should be valid if empty when min length is set', function() {
-          input('user.last').enter('');
-          expect(binding('user')).toEqual('{"name":"guest","last":""}');
-          expect(binding('myForm.lastName.$valid')).toEqual('true');
-          expect(binding('myForm.$valid')).toEqual('true');
+          userLastInput.clear();
+          userLastInput.sendKeys('');
+
+          expect(user.getText()).toContain('{"name":"guest","last":""}');
+          expect(lastNameValid.getText()).toContain('true');
+          expect(formValid.getText()).toContain('true');
         });
 
         it('should be invalid if less than required min length', function() {
-          input('user.last').enter('xx');
-          expect(binding('user')).toEqual('{"name":"guest"}');
-          expect(binding('myForm.lastName.$valid')).toEqual('false');
-          expect(binding('myForm.lastName.$error')).toMatch(/minlength/);
-          expect(binding('myForm.$valid')).toEqual('false');
+          userLastInput.clear();
+          userLastInput.sendKeys('xx');
+
+          expect(user.getText()).toContain('{"name":"guest"}');
+          expect(lastNameValid.getText()).toContain('false');
+          expect(lastNameError.getText()).toContain('minlength');
+          expect(formValid.getText()).toContain('false');
         });
 
         it('should be invalid if longer than max length', function() {
-          input('user.last').enter('some ridiculously long name');
-          expect(binding('user'))
-            .toEqual('{"name":"guest"}');
-          expect(binding('myForm.lastName.$valid')).toEqual('false');
-          expect(binding('myForm.lastName.$error')).toMatch(/maxlength/);
-          expect(binding('myForm.$valid')).toEqual('false');
+          userLastInput.clear();
+          userLastInput.sendKeys('some ridiculously long name');
+
+          expect(user.getText()).toContain('{"name":"guest"}');
+          expect(lastNameValid.getText()).toContain('false');
+          expect(lastNameError.getText()).toContain('maxlength');
+          expect(formValid.getText()).toContain('false');
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 var inputDirective = ['$browser', '$sniffer', function($browser, $sniffer) {
@@ -26301,14 +26379,17 @@ var VALID_CLASS = 'ng-valid',
        <textarea ng-model="userContent"></textarea>
       </form>
     </file>
-    <file name="scenario.js">
+    <file name="protractorTest.js">
       it('should data-bind and become invalid', function() {
-        var contentEditable = element('[contenteditable]');
+        var contentEditable = element(by.css('.doc-example-live [contenteditable]'));
 
-        expect(contentEditable.text()).toEqual('Change me!');
-        input('userContent').enter('');
-        expect(contentEditable.text()).toEqual('');
-        expect(contentEditable.prop('className')).toMatch(/ng-invalid-required/);
+        expect(contentEditable.getText()).toEqual('Change me!');
+
+        contentEditable.clear();
+        contentEditable.sendKeys(protractor.Key.BACK_SPACE);
+
+        expect(contentEditable.getText()).toEqual('');
+        expect(contentEditable.getAttribute('class')).toMatch(/ng-invalid-required/);
       });
     </file>
  * </example>
@@ -26615,24 +26696,30 @@ var ngModelDirective = function() {
  *       <input type="checkbox" ng-model="confirmed" ng-change="change()" id="ng-change-example1" />
  *       <input type="checkbox" ng-model="confirmed" id="ng-change-example2" />
  *       <label for="ng-change-example2">Confirmed</label><br />
- *       debug = {{confirmed}}<br />
- *       counter = {{counter}}
+ *       <tt>debug = {{confirmed}}</tt><br/>
+ *       <tt>counter = {{counter}}</tt><br/>
  *     </div>
  *   </doc:source>
- *   <doc:scenario>
+ *   <doc:protractor>
+ *     var counter = element(by.binding('counter'));
+ *     var debug = element(by.binding('confirmed'));
+ *
  *     it('should evaluate the expression if changing from view', function() {
- *       expect(binding('counter')).toEqual('0');
- *       element('#ng-change-example1').click();
- *       expect(binding('counter')).toEqual('1');
- *       expect(binding('confirmed')).toEqual('true');
+ *       expect(counter.getText()).toContain('0');
+ *
+ *       element(by.id('ng-change-example1')).click();
+ *
+ *       expect(counter.getText()).toContain('1');
+ *       expect(debug.getText()).toContain('true');
  *     });
  *
  *     it('should not evaluate the expression if changing from model', function() {
- *       element('#ng-change-example2').click();
- *       expect(binding('counter')).toEqual('0');
- *       expect(binding('confirmed')).toEqual('true');
+ *       element(by.id('ng-change-example2')).click();
+
+ *       expect(counter.getText()).toContain('0');
+ *       expect(debug.getText()).toContain('true');
  *     });
- *   </doc:scenario>
+ *   </doc:protractor>
  * </doc:example>
  */
 var ngChangeDirective = valueFn({
@@ -26705,20 +26792,26 @@ var requiredDirective = function() {
          <tt>myForm.$error.required = {{!!myForm.$error.required}}</tt><br/>
         </form>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
+        var listInput = element(by.model('names'));
+        var names = element(by.binding('{{names}}'));
+        var valid = element(by.binding('myForm.namesInput.$valid'));
+        var error = element(by.css('span.error'));
+
         it('should initialize to model', function() {
-          expect(binding('names')).toEqual('["igor","misko","vojta"]');
-          expect(binding('myForm.namesInput.$valid')).toEqual('true');
-          expect(element('span.error').css('display')).toBe('none');
+          expect(names.getText()).toContain('["igor","misko","vojta"]');
+          expect(valid.getText()).toContain('true');
+          expect(error.getCssValue('display')).toBe('none');
         });
 
         it('should be invalid if empty', function() {
-          input('names').enter('');
-          expect(binding('names')).toEqual('');
-          expect(binding('myForm.namesInput.$valid')).toEqual('false');
-          expect(element('span.error').css('display')).not().toBe('none');
-        });
-      </doc:scenario>
+          listInput.clear();
+          listInput.sendKeys('');
+
+          expect(names.getText()).toContain('');
+          expect(valid.getText()).toContain('false');
+          expect(error.getCssValue('display')).not.toBe('none');        });
+      </doc:protractor>
     </doc:example>
  */
 var ngListDirective = function() {
@@ -26800,15 +26893,17 @@ var CONSTANT_VALUE_REGEXP = /^(true|false|\d+)$/;
           <div>You chose {{my.favorite}}</div>
         </form>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
+        var favorite = element(by.binding('my.favorite'));
+
         it('should initialize to model', function() {
-          expect(binding('my.favorite')).toEqual('unicorns');
+          expect(favorite.getText()).toContain('unicorns');
         });
         it('should bind the values to the inputs', function() {
-          input('my.favorite').select('pizza');
-          expect(binding('my.favorite')).toEqual('pizza');
+          element.all(by.model('my.favorite')).get(0).click();
+          expect(favorite.getText()).toContain('pizza');
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 var ngValueDirective = function() {
@@ -26868,13 +26963,17 @@ var ngValueDirective = function() {
          Hello <span ng-bind="name"></span>!
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should check ng-bind', function() {
-         expect(using('.doc-example-live').binding('name')).toBe('Whirled');
-         using('.doc-example-live').input('name').enter('world');
-         expect(using('.doc-example-live').binding('name')).toBe('world');
+         var exampleContainer = $('.doc-example-live');
+         var nameInput = element(by.model('name'));
+
+         expect(exampleContainer.findElement(by.binding('name')).getText()).toBe('Whirled');
+         nameInput.clear();
+         nameInput.sendKeys('world');
+         expect(exampleContainer.findElement(by.binding('name')).getText()).toBe('world');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 var ngBindDirective = ngDirective(function(scope, element, attr) {
@@ -26920,20 +27019,22 @@ var ngBindDirective = ngDirective(function(scope, element, attr) {
         <pre ng-bind-template="{{salutation}} {{name}}!"></pre>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should check ng-bind', function() {
-         expect(using('.doc-example-live').binding('salutation')).
-           toBe('Hello');
-         expect(using('.doc-example-live').binding('name')).
-           toBe('World');
-         using('.doc-example-live').input('salutation').enter('Greetings');
-         using('.doc-example-live').input('name').enter('user');
-         expect(using('.doc-example-live').binding('salutation')).
-           toBe('Greetings');
-         expect(using('.doc-example-live').binding('name')).
-           toBe('user');
+         var salutationElem = element(by.binding('salutation'));
+         var salutationInput = element(by.model('salutation'));
+         var nameInput = element(by.model('name'));
+
+         expect(salutationElem.getText()).toBe('Hello World!');
+
+         salutationInput.clear();
+         salutationInput.sendKeys('Greetings');
+         nameInput.clear();
+         nameInput.sendKeys('user');
+
+         expect(salutationElem.getText()).toBe('Greetings user!');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
@@ -26986,12 +27087,10 @@ var ngBindTemplateDirective = ['$interpolate', function($interpolate) {
        }]);
      </file>
 
-     <file name="scenario.js">
+     <file name="protractorTest.js">
        it('should check ng-bind-html', function() {
-         expect(using('.doc-example-live').binding('myHTML')).
-           toBe(
-           'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>'
-           );
+         expect(element(by.binding('myHTML')).getText()).toBe(
+             'I am an HTMLstring with links! and other stuff');
        });
      </file>
    </example>
@@ -27123,31 +27222,35 @@ function classDirective(name, selector) {
            color: red;
        }
      </file>
-     <file name="scenario.js">
+     <file name="protractorTest.js">
+       var ps = element.all(by.css('.doc-example-live p'));
+
        it('should let you toggle the class', function() {
 
-         expect(element('.doc-example-live p:first').prop('className')).not().toMatch(/bold/);
-         expect(element('.doc-example-live p:first').prop('className')).not().toMatch(/red/);
+         expect(ps.first().getAttribute('class')).not.toMatch(/bold/);
+         expect(ps.first().getAttribute('class')).not.toMatch(/red/);
 
-         input('important').check();
-         expect(element('.doc-example-live p:first').prop('className')).toMatch(/bold/);
+         element(by.model('important')).click();
+         expect(ps.first().getAttribute('class')).toMatch(/bold/);
 
-         input('error').check();
-         expect(element('.doc-example-live p:first').prop('className')).toMatch(/red/);
+         element(by.model('error')).click();
+         expect(ps.first().getAttribute('class')).toMatch(/red/);
        });
 
        it('should let you toggle string example', function() {
-         expect(element('.doc-example-live p:nth-of-type(2)').prop('className')).toBe('');
-         input('style').enter('red');
-         expect(element('.doc-example-live p:nth-of-type(2)').prop('className')).toBe('red');
+         expect(ps.get(1).getAttribute('class')).toBe('');
+         element(by.model('style')).clear();
+         element(by.model('style')).sendKeys('red');
+         browser.debugger();
+         expect(ps.get(1).getAttribute('class')).toBe('red');
        });
 
        it('array example should have 3 classes', function() {
-         expect(element('.doc-example-live p:last').prop('className')).toBe('');
-         input('style1').enter('bold');
-         input('style2').enter('strike');
-         input('style3').enter('red');
-         expect(element('.doc-example-live p:last').prop('className')).toBe('bold strike red');
+         expect(ps.last().getAttribute('class')).toBe('');
+         element(by.model('style1')).sendKeys('bold');
+         element(by.model('style2')).sendKeys('strike');
+         element(by.model('style3')).sendKeys('red');
+         expect(ps.last().getAttribute('class')).toBe('bold strike red');
        });
      </file>
    </example>
@@ -27158,8 +27261,8 @@ function classDirective(name, selector) {
 
    <example animations="true">
      <file name="index.html">
-      <input type="button" value="set" ng-click="myVar='my-class'">
-      <input type="button" value="clear" ng-click="myVar=''">
+      <input id="setbtn" type="button" value="set" ng-click="myVar='my-class'">
+      <input id="clearbtn" type="button" value="clear" ng-click="myVar=''">
       <br>
       <span class="base-class" ng-class="myVar">Sample Text</span>
      </file>
@@ -27174,19 +27277,19 @@ function classDirective(name, selector) {
          font-size:3em;
        }
      </file>
-     <file name="scenario.js">
+     <file name="protractorTest.js">
        it('should check ng-class', function() {
-         expect(element('.doc-example-live span').prop('className')).not().
+         expect(element(by.css('.base-class')).getAttribute('class')).not.
            toMatch(/my-class/);
 
-         using('.doc-example-live').element(':button:first').click();
+         element(by.id('setbtn')).click();
 
-         expect(element('.doc-example-live span').prop('className')).
+         expect(element(by.css('.base-class')).getAttribute('class')).
            toMatch(/my-class/);
 
-         using('.doc-example-live').element(':button:last').click();
+         element(by.id('clearbtn')).click();
 
-         expect(element('.doc-example-live span').prop('className')).not().
+         expect(element(by.css('.base-class')).getAttribute('class')).not.
            toMatch(/my-class/);
        });
      </file>
@@ -27238,11 +27341,11 @@ var ngClassDirective = classDirective('', true);
          color: blue;
        }
      </file>
-     <file name="scenario.js">
+     <file name="protractorTest.js">
        it('should check ng-class-odd and ng-class-even', function() {
-         expect(element('.doc-example-live li:first span').prop('className')).
+         expect(element(by.repeater('name in names').row(0).column('name')).getAttribute('class')).
            toMatch(/odd/);
-         expect(element('.doc-example-live li:last span').prop('className')).
+         expect(element(by.repeater('name in names').row(1).column('name')).getAttribute('class')).
            toMatch(/even/);
        });
      </file>
@@ -27286,11 +27389,11 @@ var ngClassOddDirective = classDirective('Odd', 0);
          color: blue;
        }
      </file>
-     <file name="scenario.js">
+     <file name="protractorTest.js">
        it('should check ng-class-odd and ng-class-even', function() {
-         expect(element('.doc-example-live li:first span').prop('className')).
+         expect(element(by.repeater('name in names').row(0).column('name')).getAttribute('class')).
            toMatch(/odd/);
-         expect(element('.doc-example-live li:last span').prop('className')).
+         expect(element(by.repeater('name in names').row(1).column('name')).getAttribute('class')).
            toMatch(/even/);
        });
      </file>
@@ -27343,14 +27446,14 @@ var ngClassEvenDirective = classDirective('Even', 1);
         <div id="template1" ng-cloak>{{ 'hello' }}</div>
         <div id="template2" ng-cloak class="ng-cloak">{{ 'hello IE7' }}</div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should remove the template directive and css class', function() {
-         expect(element('.doc-example-live #template1').attr('ng-cloak')).
-           not().toBeDefined();
-         expect(element('.doc-example-live #template2').attr('ng-cloak')).
-           not().toBeDefined();
+         expect($('.doc-example-live #template1').getAttribute('ng-cloak')).
+           toBeNull();
+         expect($('.doc-example-live #template2').getAttribute('ng-cloak')).
+           toBeNull();
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  *
  */
@@ -27443,22 +27546,36 @@ var ngCloakDirective = ngDirective({
        </ul>
       </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should check controller as', function() {
-         expect(element('#ctrl-as-exmpl>:input').val()).toBe('John Smith');
-         expect(element('#ctrl-as-exmpl li:nth-child(1) input').val())
-           .toBe('408 555 1212');
-         expect(element('#ctrl-as-exmpl li:nth-child(2) input').val())
-           .toBe('john.smith@example.org');
+         var container = element(by.id('ctrl-as-exmpl'));
 
-         element('#ctrl-as-exmpl li:first a:contains("clear")').click();
-         expect(element('#ctrl-as-exmpl li:first input').val()).toBe('');
+         expect(container.findElement(by.model('settings.name'))
+             .getAttribute('value')).toBe('John Smith');
 
-         element('#ctrl-as-exmpl li:last a:contains("add")').click();
-         expect(element('#ctrl-as-exmpl li:nth-child(3) input').val())
-           .toBe('yourname@example.org');
+         var firstRepeat =
+             container.findElement(by.repeater('contact in settings.contacts').row(0));
+         var secondRepeat =
+             container.findElement(by.repeater('contact in settings.contacts').row(1));
+
+         expect(firstRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('408 555 1212');
+         expect(secondRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('john.smith@example.org');
+
+         firstRepeat.findElement(by.linkText('clear')).click()
+
+         expect(firstRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('');
+
+         container.findElement(by.linkText('add')).click();
+
+         expect(container.findElement(by.repeater('contact in settings.contacts').row(2))
+             .findElement(by.model('contact.value'))
+             .getAttribute('value'))
+             .toBe('yourname@example.org');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
     <doc:example>
      <doc:source>
@@ -27506,22 +27623,36 @@ var ngCloakDirective = ngDirective({
        </ul>
       </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should check controller', function() {
-         expect(element('#ctrl-exmpl>:input').val()).toBe('John Smith');
-         expect(element('#ctrl-exmpl li:nth-child(1) input').val())
-           .toBe('408 555 1212');
-         expect(element('#ctrl-exmpl li:nth-child(2) input').val())
-           .toBe('john.smith@example.org');
+         var container = element(by.id('ctrl-exmpl'));
 
-         element('#ctrl-exmpl li:first a:contains("clear")').click();
-         expect(element('#ctrl-exmpl li:first input').val()).toBe('');
+         expect(container.findElement(by.model('name'))
+             .getAttribute('value')).toBe('John Smith');
 
-         element('#ctrl-exmpl li:last a:contains("add")').click();
-         expect(element('#ctrl-exmpl li:nth-child(3) input').val())
-           .toBe('yourname@example.org');
+         var firstRepeat =
+             container.findElement(by.repeater('contact in contacts').row(0));
+         var secondRepeat =
+             container.findElement(by.repeater('contact in contacts').row(1));
+
+         expect(firstRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('408 555 1212');
+         expect(secondRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('john.smith@example.org');
+
+         firstRepeat.findElement(by.linkText('clear')).click()
+
+         expect(firstRepeat.findElement(by.model('contact.value')).getAttribute('value'))
+             .toBe('');
+
+         container.findElement(by.linkText('add')).click();
+
+         expect(container.findElement(by.repeater('contact in contacts').row(2))
+             .findElement(by.model('contact.value'))
+             .getAttribute('value'))
+             .toBe('yourname@example.org');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
 
  */
@@ -27902,20 +28033,20 @@ forEach(
         <pre>list={{list}}</pre>
       </form>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should check ng-submit', function() {
-         expect(binding('list')).toBe('[]');
-         element('.doc-example-live #submit').click();
-         expect(binding('list')).toBe('["hello"]');
-         expect(input('text').val()).toBe('');
+         expect(element(by.binding('list')).getText()).toBe('list=[]');
+         element(by.css('.doc-example-live #submit')).click();
+         expect(element(by.binding('list')).getText()).toContain('hello');
+         expect(element(by.input('text')).getAttribute('value')).toBe('');
        });
        it('should ignore empty strings', function() {
-         expect(binding('list')).toBe('[]');
-         element('.doc-example-live #submit').click();
-         element('.doc-example-live #submit').click();
-         expect(binding('list')).toBe('["hello"]');
-       });
-     </doc:scenario>
+         expect(element(by.binding('list')).getText()).toBe('list=[]');
+         element(by.css('.doc-example-live #submit')).click();
+         element(by.css('.doc-example-live #submit')).click();
+         expect(element(by.binding('list')).getText()).toContain('hello');
+        });
+     </doc:protractor>
    </doc:example>
  */
 
@@ -28242,19 +28373,24 @@ var ngIfDirective = ['$animate', function($animate) {
         top:50px;
       }
     </file>
-    <file name="scenario.js">
+    <file name="protractorTest.js">
+      var templateSelect = element(by.model('template'));
+      var includeElem = element(by.css('.doc-example-live [ng-include]'));
+
       it('should load template1.html', function() {
-       expect(element('.doc-example-live [ng-include]').text()).
-         toMatch(/Content of template1.html/);
+        expect(includeElem.getText()).toMatch(/Content of template1.html/);
       });
+
       it('should load template2.html', function() {
-       select('template').option('1');
-       expect(element('.doc-example-live [ng-include]').text()).
-         toMatch(/Content of template2.html/);
+        templateSelect.click();
+        templateSelect.element.all(by.css('option')).get(2).click();
+        expect(includeElem.getText()).toMatch(/Content of template2.html/);
       });
+
       it('should change to blank', function() {
-       select('template').option('');
-       expect(element('.doc-example-live [ng-include]')).toBe(undefined);
+        templateSelect.click();
+        templateSelect.element.all(by.css('option')).get(0).click();
+        expect(includeElem.isPresent()).toBe(false);
       });
     </file>
   </example>
@@ -28414,15 +28550,15 @@ var ngIncludeFillContentDirective = ['$compile',
      </div>
    </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should alias index positions', function() {
-         expect(element('.example-init').text())
-           .toBe('list[ 0 ][ 0 ] = a;' +
-                 'list[ 0 ][ 1 ] = b;' +
-                 'list[ 1 ][ 0 ] = c;' +
-                 'list[ 1 ][ 1 ] = d;');
+         var elements = element.all(by.css('.example-init'));
+         expect(elements.get(0).getText()).toBe('list[ 0 ][ 0 ] = a;');
+         expect(elements.get(1).getText()).toBe('list[ 0 ][ 1 ] = b;');
+         expect(elements.get(2).getText()).toBe('list[ 1 ][ 0 ] = c;');
+         expect(elements.get(3).getText()).toBe('list[ 1 ][ 1 ] = d;');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 var ngInitDirective = ngDirective({
@@ -28460,13 +28596,12 @@ var ngInitDirective = ngDirective({
         <div>Normal: {{1 + 2}}</div>
         <div ng-non-bindable>Ignored: {{1 + 2}}</div>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
        it('should check ng-non-bindable', function() {
-         expect(using('.doc-example-live').binding('1 + 2')).toBe('3');
-         expect(using('.doc-example-live').element('div:last').text()).
-           toMatch(/1 \+ 2/);
+         expect(element(by.binding('1 + 2')).getText()).toContain('3');
+         expect(element.all(by.css('.doc-example-live div')).last().getText()).toMatch(/1 \+ 2/);
        });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
@@ -28594,49 +28729,53 @@ var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
           </ng-pluralize>
         </div>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
         it('should show correct pluralized string', function() {
-          expect(element('.doc-example-live ng-pluralize:first').text()).
-                                             toBe('1 person is viewing.');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-                                                toBe('Igor is viewing.');
+          var withoutOffset = element.all(by.css('ng-pluralize')).get(0);
+          var withOffset = element.all(by.css('ng-pluralize')).get(1);
+          var countInput = element(by.model('personCount'));
 
-          using('.doc-example-live').input('personCount').enter('0');
-          expect(element('.doc-example-live ng-pluralize:first').text()).
-                                               toBe('Nobody is viewing.');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-                                              toBe('Nobody is viewing.');
+          expect(withoutOffset.getText()).toEqual('1 person is viewing.');
+          expect(withOffset.getText()).toEqual('Igor is viewing.');
 
-          using('.doc-example-live').input('personCount').enter('2');
-          expect(element('.doc-example-live ng-pluralize:first').text()).
-                                            toBe('2 people are viewing.');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-                              toBe('Igor and Misko are viewing.');
+          countInput.clear();
+          countInput.sendKeys('0');
 
-          using('.doc-example-live').input('personCount').enter('3');
-          expect(element('.doc-example-live ng-pluralize:first').text()).
-                                            toBe('3 people are viewing.');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-                              toBe('Igor, Misko and one other person are viewing.');
+          expect(withoutOffset.getText()).toEqual('Nobody is viewing.');
+          expect(withOffset.getText()).toEqual('Nobody is viewing.');
 
-          using('.doc-example-live').input('personCount').enter('4');
-          expect(element('.doc-example-live ng-pluralize:first').text()).
-                                            toBe('4 people are viewing.');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-                              toBe('Igor, Misko and 2 other people are viewing.');
+          countInput.clear();
+          countInput.sendKeys('2');
+
+          expect(withoutOffset.getText()).toEqual('2 people are viewing.');
+          expect(withOffset.getText()).toEqual('Igor and Misko are viewing.');
+
+          countInput.clear();
+          countInput.sendKeys('3');
+
+          expect(withoutOffset.getText()).toEqual('3 people are viewing.');
+          expect(withOffset.getText()).toEqual('Igor, Misko and one other person are viewing.');
+
+          countInput.clear();
+          countInput.sendKeys('4');
+
+          expect(withoutOffset.getText()).toEqual('4 people are viewing.');
+          expect(withOffset.getText()).toEqual('Igor, Misko and 2 other people are viewing.');
         });
-
-        it('should show data-binded names', function() {
-          using('.doc-example-live').input('personCount').enter('4');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-              toBe('Igor, Misko and 2 other people are viewing.');
-
-          using('.doc-example-live').input('person1').enter('Di');
-          using('.doc-example-live').input('person2').enter('Vojta');
-          expect(element('.doc-example-live ng-pluralize:last').text()).
-              toBe('Di, Vojta and 2 other people are viewing.');
+        it('should show data-bound names', function() {
+          var withOffset = element.all(by.css('ng-pluralize')).get(1);
+          var personCount = element(by.model('personCount'));
+          var person1 = element(by.model('person1'));
+          var person2 = element(by.model('person2'));
+          personCount.clear();
+          personCount.sendKeys('4');
+          person1.clear();
+          person1.sendKeys('Di');
+          person2.clear();
+          person2.sendKeys('Vojta');
+          expect(withOffset.getText()).toEqual('Di, Vojta and 2 other people are viewing.');
         });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interpolate) {
@@ -28855,25 +28994,27 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
         max-height:40px;
       }
     </file>
-    <file name="scenario.js">
-       it('should render initial data set', function() {
-         var r = using('.doc-example-live').repeater('ul li');
-         expect(r.count()).toBe(10);
-         expect(r.row(0)).toEqual(["1","John","25"]);
-         expect(r.row(1)).toEqual(["2","Jessie","30"]);
-         expect(r.row(9)).toEqual(["10","Samantha","60"]);
-         expect(binding('friends.length')).toBe("10");
-       });
+    <file name="protractorTest.js">
+      var friends = element(by.css('.doc-example-live'))
+          .element.all(by.repeater('friend in friends'));
+
+      it('should render initial data set', function() {
+        expect(friends.count()).toBe(10);
+        expect(friends.get(0).getText()).toEqual('[1] John who is 25 years old.');
+        expect(friends.get(1).getText()).toEqual('[2] Jessie who is 30 years old.');
+        expect(friends.last().getText()).toEqual('[10] Samantha who is 60 years old.');
+        expect(element(by.binding('friends.length')).getText())
+            .toMatch("I have 10 friends. They are:");
+      });
 
        it('should update repeater when filter predicate changes', function() {
-         var r = using('.doc-example-live').repeater('ul li');
-         expect(r.count()).toBe(10);
+         expect(friends.count()).toBe(10);
 
-         input('q').enter('ma');
+         element(by.css('.doc-example-live')).element(by.model('q')).sendKeys('ma');
 
-         expect(r.count()).toBe(2);
-         expect(r.row(0)).toEqual(["1","Mary","28"]);
-         expect(r.row(1)).toEqual(["2","Samantha","60"]);
+         expect(friends.count()).toBe(2);
+         expect(friends.get(0).getText()).toEqual('[1] Mary who is 28 years old.');
+         expect(friends.last().getText()).toEqual('[2] Samantha who is 60 years old.');
        });
       </file>
     </example>
@@ -29207,16 +29348,19 @@ var ngRepeatDirective = ['$parse', '$animate', function($parse, $animate) {
         background:white;
       }
     </file>
-    <file name="scenario.js">
-       it('should check ng-show / ng-hide', function() {
-         expect(element('.doc-example-live span:first:hidden').count()).toEqual(1);
-         expect(element('.doc-example-live span:last:visible').count()).toEqual(1);
+    <file name="protractorTest.js">
+      var thumbsUp = element(by.css('.doc-example-live span.icon-thumbs-up'));
+      var thumbsDown = element(by.css('.doc-example-live span.icon-thumbs-down'));
 
-         input('checked').check();
+      it('should check ng-show / ng-hide', function() {
+        expect(thumbsUp.isDisplayed()).toBeFalsy();
+        expect(thumbsDown.isDisplayed()).toBeTruthy();
 
-         expect(element('.doc-example-live span:first:visible').count()).toEqual(1);
-         expect(element('.doc-example-live span:last:hidden').count()).toEqual(1);
-       });
+        element(by.model('checked')).click();
+
+        expect(thumbsUp.isDisplayed()).toBeTruthy();
+        expect(thumbsDown.isDisplayed()).toBeFalsy();
+      });
     </file>
   </example>
  */
@@ -29361,16 +29505,19 @@ var ngShowDirective = ['$animate', function($animate) {
         background:white;
       }
     </file>
-    <file name="scenario.js">
-       it('should check ng-show / ng-hide', function() {
-         expect(element('.doc-example-live .check-element:first:hidden').count()).toEqual(1);
-         expect(element('.doc-example-live .check-element:last:visible').count()).toEqual(1);
+    <file name="protractorTest.js">
+      var thumbsUp = element(by.css('.doc-example-live span.icon-thumbs-up'));
+      var thumbsDown = element(by.css('.doc-example-live span.icon-thumbs-down'));
 
-         input('checked').check();
+      it('should check ng-show / ng-hide', function() {
+        expect(thumbsUp.isDisplayed()).toBeFalsy();
+        expect(thumbsDown.isDisplayed()).toBeTruthy();
 
-         expect(element('.doc-example-live .check-element:first:visible').count()).toEqual(1);
-         expect(element('.doc-example-live .check-element:last:hidden').count()).toEqual(1);
-       });
+        element(by.model('checked')).click();
+
+        expect(thumbsUp.isDisplayed()).toBeTruthy();
+        expect(thumbsDown.isDisplayed()).toBeFalsy();
+      });
     </file>
   </example>
  */
@@ -29409,13 +29556,15 @@ var ngHideDirective = ['$animate', function($animate) {
          color: black;
        }
      </file>
-     <file name="scenario.js">
+     <file name="protractorTest.js">
+       var colorSpan = element(by.css('.doc-example-live span'));
+
        it('should check ng-style', function() {
-         expect(element('.doc-example-live span').css('color')).toBe('rgb(0, 0, 0)');
-         element('.doc-example-live :button[value=set]').click();
-         expect(element('.doc-example-live span').css('color')).toBe('rgb(255, 0, 0)');
-         element('.doc-example-live :button[value=clear]').click();
-         expect(element('.doc-example-live span').css('color')).toBe('rgb(0, 0, 0)');
+         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
+         element(by.css('.doc-example-live input[value=set]')).click();
+         expect(colorSpan.getCssValue('color')).toBe('rgba(255, 0, 0, 1)');
+         element(by.css('.doc-example-live input[value=clear]')).click();
+         expect(colorSpan.getCssValue('color')).toBe('rgba(0, 0, 0, 1)');
        });
      </file>
    </example>
@@ -29440,7 +29589,7 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
  * as specified in the template.
  *
  * The directive itself works similar to ngInclude, however, instead of downloading template code (or loading it
- * from the template cache), `ngSwitch` simply choses one of the nested elements and makes it visible based on which element
+ * from the template cache), `ngSwitch` simply chooses one of the nested elements and makes it visible based on which element
  * matches the value obtained from the evaluated expression. In other words, you define a container element
  * (where you place the directive), place an expression on the **`on="..."` attribute**
  * (or the **`ng-switch="..."` attribute**), define any inner elements inside of the directive and place
@@ -29536,17 +29685,20 @@ var ngStyleDirective = ngDirective(function(scope, element, attr) {
         top:0;
       }
     </file>
-    <file name="scenario.js">
+    <file name="protractorTest.js">
+      var switchElem = element(by.css('.doc-example-live [ng-switch]'));
+      var select = element(by.model('selection'));
+
       it('should start in settings', function() {
-        expect(element('.doc-example-live [ng-switch]').text()).toMatch(/Settings Div/);
+        expect(switchElem.getText()).toMatch(/Settings Div/);
       });
       it('should change to home', function() {
-        select('selection').option('home');
-        expect(element('.doc-example-live [ng-switch]').text()).toMatch(/Home Span/);
+        select.element.all(by.css('option')).get(1).click();
+        expect(switchElem.getText()).toMatch(/Home Span/);
       });
       it('should select default', function() {
-        select('selection').option('other');
-        expect(element('.doc-example-live [ng-switch]').text()).toMatch(/default/);
+        select.element.all(by.css('option')).get(2).click();
+        expect(switchElem.getText()).toMatch(/default/);
       });
     </file>
   </example>
@@ -29653,14 +29805,18 @@ var ngSwitchDefaultDirective = ngDirective({
          <pane title="{{title}}">{{text}}</pane>
        </div>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
         it('should have transcluded', function() {
-          input('title').enter('TITLE');
-          input('text').enter('TEXT');
-          expect(binding('title')).toEqual('TITLE');
-          expect(binding('text')).toEqual('TEXT');
+          var titleElement = element(by.model('title'));
+          titleElement.clear();
+          titleElement.sendKeys('TITLE');
+          var textElement = element(by.model('text'));
+          textElement.clear();
+          textElement.sendKeys('TEXT');
+          expect(element(by.binding('title')).getText()).toEqual('TITLE');
+          expect(element(by.binding('text')).getText()).toEqual('TEXT');
         });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  *
  */
@@ -29713,12 +29869,12 @@ var ngTranscludeDirective = ngDirective({
       <a ng-click="currentTpl='/tpl.html'" id="tpl-link">Load inlined template</a>
       <div id="tpl-content" ng-include src="currentTpl"></div>
     </doc:source>
-    <doc:scenario>
+    <doc:protractor>
       it('should load template defined inside script tag', function() {
-        element('#tpl-link').click();
-        expect(element('#tpl-content').text()).toMatch(/Content of the template/);
+        element(by.css('#tpl-link')).click();
+        expect(element(by.css('#tpl-content')).getText()).toMatch(/Content of the template/);
       });
-    </doc:scenario>
+    </doc:protractor>
   </doc:example>
  */
 var scriptDirective = ['$templateCache', function($templateCache) {
@@ -29766,7 +29922,7 @@ var ngOptionsMinErr = minErr('ngOptions');
  * option. See example below for demonstration.
  *
  * <div class="alert alert-warning">
- * **Note:** `ngOptions` provides iterator facility for `<option>` element which should be used instead
+ * **Note:** `ngOptions` provides an iterator facility for the `<option>` element which should be used instead
  * of {@link ng.directive:ngRepeat ngRepeat} when you want the
  * `select` model to be bound to a non-string value. This is because an option element can only
  * be bound to string values at present.
@@ -29857,15 +30013,17 @@ var ngOptionsMinErr = minErr('ngOptions');
           </div>
         </div>
       </doc:source>
-      <doc:scenario>
+      <doc:protractor>
          it('should check ng-options', function() {
-           expect(binding('{selected_color:color}')).toMatch('red');
-           select('color').option('0');
-           expect(binding('{selected_color:color}')).toMatch('black');
-           using('.nullable').select('color').option('');
-           expect(binding('{selected_color:color}')).toMatch('null');
+           expect(element(by.binding('{selected_color:color}')).getText()).toMatch('red');
+           element.all(by.select('color')).first().click();
+           element.all(by.css('select[ng-model="color"] option')).first().click();
+           expect(element(by.binding('{selected_color:color}')).getText()).toMatch('black');
+           element(by.css('.nullable select[ng-model="color"]')).click();
+           element.all(by.css('.nullable select[ng-model="color"] option')).first().click();
+           expect(element(by.binding('{selected_color:color}')).getText()).toMatch('null');
          });
-      </doc:scenario>
+      </doc:protractor>
     </doc:example>
  */
 
@@ -30391,7 +30549,7 @@ define("angular", ["jquery"], (function (global) {
 }(this)));
 
 /**
- * @license AngularJS v1.2.10-build.2176+sha.e020916
+ * @license AngularJS v1.2.11-build.2199+sha.074b067
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -30742,17 +30900,17 @@ function $RouteProvider(){
          }
        </file>
 
-       <file name="scenario.js">
+       <file name="protractorTest.js">
          it('should load and compile correct template', function() {
-           element('a:contains("Moby: Ch1")').click();
-           var content = element('.doc-example-live [ng-view]').text();
+           element(by.linkText('Moby: Ch1')).click();
+           var content = element(by.css('.doc-example-live [ng-view]')).getText();
            expect(content).toMatch(/controller\: ChapterCntl/);
            expect(content).toMatch(/Book Id\: Moby/);
            expect(content).toMatch(/Chapter Id\: 1/);
 
-           element('a:contains("Scarlet")').click();
-           sleep(2); // promises are not part of scenario waiting
-           content = element('.doc-example-live [ng-view]').text();
+           element(by.partialLinkText('Scarlet')).click();
+
+           content = element(by.css('.doc-example-live [ng-view]')).getText();
            expect(content).toMatch(/controller\: BookCntl/);
            expect(content).toMatch(/Book Id\: Scarlet/);
          });
@@ -31186,16 +31344,17 @@ ngRouteModule.directive('ngView', ngViewFillContentFactory);
         }
       </file>
 
-      <file name="scenario.js">
+      <file name="protractorTest.js">
         it('should load and compile correct template', function() {
-          element('a:contains("Moby: Ch1")').click();
-          var content = element('.doc-example-live [ng-view]').text();
+          element(by.linkText('Moby: Ch1')).click();
+          var content = element(by.css('.doc-example-live [ng-view]')).getText();
           expect(content).toMatch(/controller\: ChapterCntl/);
           expect(content).toMatch(/Book Id\: Moby/);
           expect(content).toMatch(/Chapter Id\: 1/);
 
-          element('a:contains("Scarlet")').click();
-          content = element('.doc-example-live [ng-view]').text();
+          element(by.partialLinkText('Scarlet')).click();
+
+          content = element(by.css('.doc-example-live [ng-view]')).getText();
           expect(content).toMatch(/controller\: BookCntl/);
           expect(content).toMatch(/Book Id\: Scarlet/);
         });
@@ -31314,7 +31473,7 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 define("angular-route", ["angular"], function(){});
 
 /**
- * @license AngularJS v1.2.10-build.2176+sha.e020916
+ * @license AngularJS v1.2.11-build.2199+sha.074b067
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -31911,7 +32070,7 @@ angular.module('ngResource', ['ng']).
 define("angular-resource", ["angular"], function(){});
 
 /**
- * @license AngularJS v1.2.10-build.2176+sha.e020916
+ * @license AngularJS v1.2.11-build.2199+sha.074b067
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -32116,7 +32275,7 @@ angular.module('ngCookies', ['ng']).
 define("angular-cookies", ["angular"], function(){});
 
 /**
- * @license AngularJS v1.2.10-build.2176+sha.e020916
+ * @license AngularJS v1.2.11-build.2199+sha.074b067
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -32221,35 +32380,37 @@ var $sanitizeMinErr = angular.$$minErr('$sanitize');
        </table>
        </div>
    </doc:source>
-   <doc:scenario>
+   <doc:protractor>
      it('should sanitize the html snippet by default', function() {
-       expect(using('#bind-html-with-sanitize').element('div').html()).
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
          toBe('<p>an html\n<em>click here</em>\nsnippet</p>');
      });
 
      it('should inline raw snippet if bound to a trusted value', function() {
-       expect(using('#bind-html-with-trust').element("div").html()).
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).
          toBe("<p style=\"color:blue\">an html\n" +
               "<em onmouseover=\"this.textContent='PWN3D!'\">click here</em>\n" +
               "snippet</p>");
      });
 
      it('should escape snippet without any filter', function() {
-       expect(using('#bind-default').element('div').html()).
+       expect(element(by.css('#bind-default div')).getInnerHtml()).
          toBe("&lt;p style=\"color:blue\"&gt;an html\n" +
               "&lt;em onmouseover=\"this.textContent='PWN3D!'\"&gt;click here&lt;/em&gt;\n" +
               "snippet&lt;/p&gt;");
      });
 
      it('should update', function() {
-       input('snippet').enter('new <b onclick="alert(1)">text</b>');
-       expect(using('#bind-html-with-sanitize').element('div').html()).toBe('new <b>text</b>');
-       expect(using('#bind-html-with-trust').element('div').html()).toBe(
+       element(by.model('snippet')).clear();
+       element(by.model('snippet')).sendKeys('new <b onclick="alert(1)">text</b>');
+       expect(element(by.css('#bind-html-with-sanitize div')).getInnerHtml()).
+         toBe('new <b>text</b>');
+       expect(element(by.css('#bind-html-with-trust div')).getInnerHtml()).toBe(
          'new <b onclick="alert(1)">text</b>');
-       expect(using('#bind-default').element('div').html()).toBe(
+       expect(element(by.css('#bind-default div')).getInnerHtml()).toBe(
          "new &lt;b onclick=\"alert(1)\"&gt;text&lt;/b&gt;");
      });
-   </doc:scenario>
+   </doc:protractor>
    </doc:example>
  */
 function $SanitizeProvider() {
@@ -32654,37 +32815,38 @@ angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
          </tr>
        </table>
      </doc:source>
-     <doc:scenario>
+     <doc:protractor>
        it('should linkify the snippet with urls', function() {
-         expect(using('#linky-filter').binding('snippet | linky')).
-           toBe('Pretty text with some links:&#10;' +
-                '<a href="http://angularjs.org/">http://angularjs.org/</a>,&#10;' +
-                '<a href="mailto:us@somewhere.org">us@somewhere.org</a>,&#10;' +
-                '<a href="mailto:another@somewhere.org">another@somewhere.org</a>,&#10;' +
-                'and one more: <a href="ftp://127.0.0.1/">ftp://127.0.0.1/</a>.');
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(4);
        });
 
-       it ('should not linkify snippet without the linky filter', function() {
-         expect(using('#escaped-html').binding('snippet')).
-           toBe("Pretty text with some links:\n" +
-                "http://angularjs.org/,\n" +
-                "mailto:us@somewhere.org,\n" +
-                "another@somewhere.org,\n" +
-                "and one more: ftp://127.0.0.1/.");
+       it('should not linkify snippet without the linky filter', function() {
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText()).
+             toBe('Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, ' +
+                  'another@somewhere.org, and one more: ftp://127.0.0.1/.');
+         expect(element.all(by.css('#escaped-html a')).count()).toEqual(0);
        });
 
        it('should update', function() {
-         input('snippet').enter('new http://link.');
-         expect(using('#linky-filter').binding('snippet | linky')).
-           toBe('new <a href="http://link">http://link</a>.');
-         expect(using('#escaped-html').binding('snippet')).toBe('new http://link.');
+         element(by.model('snippet')).clear();
+         element(by.model('snippet')).sendKeys('new http://link.');
+         expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
+             toBe('new http://link.');
+         expect(element.all(by.css('#linky-filter a')).count()).toEqual(1);
+         expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText())
+             .toBe('new http://link.');
        });
 
        it('should work with the target property', function() {
-        expect(using('#linky-target').binding("snippetWithTarget | linky:'_blank'")).
-          toBe('<a target="_blank" href="http://angularjs.org/">http://angularjs.org/</a>');
+        expect(element(by.id('linky-target')).
+            element(by.binding("snippetWithTarget | linky:'_blank'")).getText()).
+            toBe('http://angularjs.org/');
+        expect(element(by.css('#linky-target a')).getAttribute('target')).toEqual('_blank');
        });
-     </doc:scenario>
+     </doc:protractor>
    </doc:example>
  */
 angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
@@ -35085,6 +35247,397 @@ define("firebase", (function (global) {
 
 define("angularfire", ["angular","firebase"], function(){});
 
+/**
+ * @license RequireJS text 2.0.10 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/requirejs/text for details
+ */
+/*jslint regexp: true */
+/*global require, XMLHttpRequest, ActiveXObject,
+  define, window, process, Packages,
+  java, location, Components, FileUtils */
+
+define('text',['module'], function (module) {
+    
+
+    var text, fs, Cc, Ci, xpcIsWindows,
+        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
+        xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
+        bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
+        hasLocation = typeof location !== 'undefined' && location.href,
+        defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
+        defaultHostName = hasLocation && location.hostname,
+        defaultPort = hasLocation && (location.port || undefined),
+        buildMap = {},
+        masterConfig = (module.config && module.config()) || {};
+
+    text = {
+        version: '2.0.10',
+
+        strip: function (content) {
+            //Strips <?xml ...?> declarations so that external SVG and XML
+            //documents can be added to a document without worry. Also, if the string
+            //is an HTML document, only the part inside the body tag is returned.
+            if (content) {
+                content = content.replace(xmlRegExp, "");
+                var matches = content.match(bodyRegExp);
+                if (matches) {
+                    content = matches[1];
+                }
+            } else {
+                content = "";
+            }
+            return content;
+        },
+
+        jsEscape: function (content) {
+            return content.replace(/(['\\])/g, '\\$1')
+                .replace(/[\f]/g, "\\f")
+                .replace(/[\b]/g, "\\b")
+                .replace(/[\n]/g, "\\n")
+                .replace(/[\t]/g, "\\t")
+                .replace(/[\r]/g, "\\r")
+                .replace(/[\u2028]/g, "\\u2028")
+                .replace(/[\u2029]/g, "\\u2029");
+        },
+
+        createXhr: masterConfig.createXhr || function () {
+            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+            var xhr, i, progId;
+            if (typeof XMLHttpRequest !== "undefined") {
+                return new XMLHttpRequest();
+            } else if (typeof ActiveXObject !== "undefined") {
+                for (i = 0; i < 3; i += 1) {
+                    progId = progIds[i];
+                    try {
+                        xhr = new ActiveXObject(progId);
+                    } catch (e) {}
+
+                    if (xhr) {
+                        progIds = [progId];  // so faster next time
+                        break;
+                    }
+                }
+            }
+
+            return xhr;
+        },
+
+        /**
+         * Parses a resource name into its component parts. Resource names
+         * look like: module/name.ext!strip, where the !strip part is
+         * optional.
+         * @param {String} name the resource name
+         * @returns {Object} with properties "moduleName", "ext" and "strip"
+         * where strip is a boolean.
+         */
+        parseName: function (name) {
+            var modName, ext, temp,
+                strip = false,
+                index = name.indexOf("."),
+                isRelative = name.indexOf('./') === 0 ||
+                             name.indexOf('../') === 0;
+
+            if (index !== -1 && (!isRelative || index > 1)) {
+                modName = name.substring(0, index);
+                ext = name.substring(index + 1, name.length);
+            } else {
+                modName = name;
+            }
+
+            temp = ext || modName;
+            index = temp.indexOf("!");
+            if (index !== -1) {
+                //Pull off the strip arg.
+                strip = temp.substring(index + 1) === "strip";
+                temp = temp.substring(0, index);
+                if (ext) {
+                    ext = temp;
+                } else {
+                    modName = temp;
+                }
+            }
+
+            return {
+                moduleName: modName,
+                ext: ext,
+                strip: strip
+            };
+        },
+
+        xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
+
+        /**
+         * Is an URL on another domain. Only works for browser use, returns
+         * false in non-browser environments. Only used to know if an
+         * optimized .js version of a text resource should be loaded
+         * instead.
+         * @param {String} url
+         * @returns Boolean
+         */
+        useXhr: function (url, protocol, hostname, port) {
+            var uProtocol, uHostName, uPort,
+                match = text.xdRegExp.exec(url);
+            if (!match) {
+                return true;
+            }
+            uProtocol = match[2];
+            uHostName = match[3];
+
+            uHostName = uHostName.split(':');
+            uPort = uHostName[1];
+            uHostName = uHostName[0];
+
+            return (!uProtocol || uProtocol === protocol) &&
+                   (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
+                   ((!uPort && !uHostName) || uPort === port);
+        },
+
+        finishLoad: function (name, strip, content, onLoad) {
+            content = strip ? text.strip(content) : content;
+            if (masterConfig.isBuild) {
+                buildMap[name] = content;
+            }
+            onLoad(content);
+        },
+
+        load: function (name, req, onLoad, config) {
+            //Name has format: some.module.filext!strip
+            //The strip part is optional.
+            //if strip is present, then that means only get the string contents
+            //inside a body tag in an HTML string. For XML/SVG content it means
+            //removing the <?xml ...?> declarations so the content can be inserted
+            //into the current doc without problems.
+
+            // Do not bother with the work if a build and text will
+            // not be inlined.
+            if (config.isBuild && !config.inlineText) {
+                onLoad();
+                return;
+            }
+
+            masterConfig.isBuild = config.isBuild;
+
+            var parsed = text.parseName(name),
+                nonStripName = parsed.moduleName +
+                    (parsed.ext ? '.' + parsed.ext : ''),
+                url = req.toUrl(nonStripName),
+                useXhr = (masterConfig.useXhr) ||
+                         text.useXhr;
+
+            // Do not load if it is an empty: url
+            if (url.indexOf('empty:') === 0) {
+                onLoad();
+                return;
+            }
+
+            //Load the text. Use XHR if possible and in a browser.
+            if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                text.get(url, function (content) {
+                    text.finishLoad(name, parsed.strip, content, onLoad);
+                }, function (err) {
+                    if (onLoad.error) {
+                        onLoad.error(err);
+                    }
+                });
+            } else {
+                //Need to fetch the resource across domains. Assume
+                //the resource has been optimized into a JS module. Fetch
+                //by the module name + extension, but do not include the
+                //!strip part to avoid file system issues.
+                req([nonStripName], function (content) {
+                    text.finishLoad(parsed.moduleName + '.' + parsed.ext,
+                                    parsed.strip, content, onLoad);
+                });
+            }
+        },
+
+        write: function (pluginName, moduleName, write, config) {
+            if (buildMap.hasOwnProperty(moduleName)) {
+                var content = text.jsEscape(buildMap[moduleName]);
+                write.asModule(pluginName + "!" + moduleName,
+                               "define(function () { return '" +
+                                   content +
+                               "';});\n");
+            }
+        },
+
+        writeFile: function (pluginName, moduleName, req, write, config) {
+            var parsed = text.parseName(moduleName),
+                extPart = parsed.ext ? '.' + parsed.ext : '',
+                nonStripName = parsed.moduleName + extPart,
+                //Use a '.js' file name so that it indicates it is a
+                //script that can be loaded across domains.
+                fileName = req.toUrl(parsed.moduleName + extPart) + '.js';
+
+            //Leverage own load() method to load plugin value, but only
+            //write out values that do not have the strip argument,
+            //to avoid any potential issues with ! in file names.
+            text.load(nonStripName, req, function (value) {
+                //Use own write() method to construct full module value.
+                //But need to create shell that translates writeFile's
+                //write() to the right interface.
+                var textWrite = function (contents) {
+                    return write(fileName, contents);
+                };
+                textWrite.asModule = function (moduleName, contents) {
+                    return write.asModule(moduleName, fileName, contents);
+                };
+
+                text.write(pluginName, nonStripName, textWrite, config);
+            }, config);
+        }
+    };
+
+    if (masterConfig.env === 'node' || (!masterConfig.env &&
+            typeof process !== "undefined" &&
+            process.versions &&
+            !!process.versions.node &&
+            !process.versions['node-webkit'])) {
+        //Using special require.nodeRequire, something added by r.js.
+        fs = require.nodeRequire('fs');
+
+        text.get = function (url, callback, errback) {
+            try {
+                var file = fs.readFileSync(url, 'utf8');
+                //Remove BOM (Byte Mark Order) from utf8 files if it is there.
+                if (file.indexOf('\uFEFF') === 0) {
+                    file = file.substring(1);
+                }
+                callback(file);
+            } catch (e) {
+                errback(e);
+            }
+        };
+    } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
+            text.createXhr())) {
+        text.get = function (url, callback, errback, headers) {
+            var xhr = text.createXhr(), header;
+            xhr.open('GET', url, true);
+
+            //Allow plugins direct access to xhr headers
+            if (headers) {
+                for (header in headers) {
+                    if (headers.hasOwnProperty(header)) {
+                        xhr.setRequestHeader(header.toLowerCase(), headers[header]);
+                    }
+                }
+            }
+
+            //Allow overrides specified in config
+            if (masterConfig.onXhr) {
+                masterConfig.onXhr(xhr, url);
+            }
+
+            xhr.onreadystatechange = function (evt) {
+                var status, err;
+                //Do not explicitly handle errors, those should be
+                //visible via console output in the browser.
+                if (xhr.readyState === 4) {
+                    status = xhr.status;
+                    if (status > 399 && status < 600) {
+                        //An http 4xx or 5xx error. Signal an error.
+                        err = new Error(url + ' HTTP status: ' + status);
+                        err.xhr = xhr;
+                        errback(err);
+                    } else {
+                        callback(xhr.responseText);
+                    }
+
+                    if (masterConfig.onXhrComplete) {
+                        masterConfig.onXhrComplete(xhr, url);
+                    }
+                }
+            };
+            xhr.send(null);
+        };
+    } else if (masterConfig.env === 'rhino' || (!masterConfig.env &&
+            typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
+        //Why Java, why is this so awkward?
+        text.get = function (url, callback) {
+            var stringBuffer, line,
+                encoding = "utf-8",
+                file = new java.io.File(url),
+                lineSeparator = java.lang.System.getProperty("line.separator"),
+                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+                content = '';
+            try {
+                stringBuffer = new java.lang.StringBuffer();
+                line = input.readLine();
+
+                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+                // http://www.unicode.org/faq/utf_bom.html
+
+                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
+                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
+                if (line && line.length() && line.charAt(0) === 0xfeff) {
+                    // Eat the BOM, since we've already found the encoding on this file,
+                    // and we plan to concatenating this buffer with others; the BOM should
+                    // only appear at the top of a file.
+                    line = line.substring(1);
+                }
+
+                if (line !== null) {
+                    stringBuffer.append(line);
+                }
+
+                while ((line = input.readLine()) !== null) {
+                    stringBuffer.append(lineSeparator);
+                    stringBuffer.append(line);
+                }
+                //Make sure we return a JavaScript string and not a Java string.
+                content = String(stringBuffer.toString()); //String
+            } finally {
+                input.close();
+            }
+            callback(content);
+        };
+    } else if (masterConfig.env === 'xpconnect' || (!masterConfig.env &&
+            typeof Components !== 'undefined' && Components.classes &&
+            Components.interfaces)) {
+        //Avert your gaze!
+        Cc = Components.classes,
+        Ci = Components.interfaces;
+        Components.utils['import']('resource://gre/modules/FileUtils.jsm');
+        xpcIsWindows = ('@mozilla.org/windows-registry-key;1' in Cc);
+
+        text.get = function (url, callback) {
+            var inStream, convertStream, fileObj,
+                readData = {};
+
+            if (xpcIsWindows) {
+                url = url.replace(/\//g, '\\');
+            }
+
+            fileObj = new FileUtils.File(url);
+
+            //XPCOM, you so crazy
+            try {
+                inStream = Cc['@mozilla.org/network/file-input-stream;1']
+                           .createInstance(Ci.nsIFileInputStream);
+                inStream.init(fileObj, 1, 0, false);
+
+                convertStream = Cc['@mozilla.org/intl/converter-input-stream;1']
+                                .createInstance(Ci.nsIConverterInputStream);
+                convertStream.init(inStream, "utf-8", inStream.available(),
+                Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+                convertStream.readString(inStream.available(), readData);
+                convertStream.close();
+                inStream.close();
+                callback(readData.value);
+            } catch (e) {
+                throw new Error((fileObj && fileObj.path || '') + ': ' + e);
+            }
+        };
+    }
+    return text;
+});
+
+define('text!views/paginator.html',[],function () { return '<div>\n  <button ng-disabled="!currentPage"\n\t      ng-click="currentPage=currentPage-1"><-</button>\n<!-- TODO: apply likedBy:username filter here-->\n  <button ng-disabled="(currentPage+1)*pageSize > posts.length"\n\t      ng-click="currentPage=currentPage+1">-></button>\n</div>\n';});
+
+define('text!views/expand-input.html',[],function () { return '<input ng-show="showEditBox"\n\t   ng-model="myModel"\n\t   ng-focus="showEditBox=false"\n\t   placeholder="bla bla"></input>\n<textarea class="expand-input"\n\t\t  ng-hide="showEditBox"\n\t\t  ng-model="myModel"\n\t\t  ng-blur="showEditBox=true"\n\t\t  ng-keydown="keydown($event)"></textarea>\n';});
+
 
 
 define('app-filters',['underscore', 'angular'], function(_, angular) {
@@ -35102,7 +35655,7 @@ define('app-filters',['underscore', 'angular'], function(_, angular) {
 			if (!defaultValue) {
 				defaultValue = '';
 			}
-			if (_(input).isEmpty()) {
+			if (_(input).isEmpty() && !_(input).isNumber()) {
 				return defaultValue;
 			} else {
 				return input;
@@ -35148,7 +35701,8 @@ define('app-filters',['underscore', 'angular'], function(_, angular) {
 
 
 
-define('app-directives',['underscore', 'angular', 'app-filters'], function(_, angular) {
+define('app-directives',['underscore', 'angular', 'text!views/paginator.html', 'text!views/expand-input.html', 'app-filters'],
+	   function(_, angular, paginatorHtml, expandableHtml) {
 	return angular.module('appDirectives', [
 		'appFilters'
 	])
@@ -35159,7 +35713,7 @@ define('app-directives',['underscore', 'angular', 'app-filters'], function(_, an
 				'myModel': '=',
 				'mySubmit': '&'
 			},
-			templateUrl: 'views/expand-input.html',
+			template: expandableHtml,
 			link: function($scope, elem, attr) {
 				$scope.showEditBox = true;
 				$scope.$watch('showEditBox', function() {
@@ -35182,7 +35736,7 @@ define('app-directives',['underscore', 'angular', 'app-filters'], function(_, an
 	.directive('myPaginator', function($log, $document, $timeout) {
 		return {
 			restrict: 'AE',
-			templateUrl: 'views/paginator.html',
+			template: paginatorHtml
 		};
 	});
 });
@@ -35221,20 +35775,21 @@ define('app-services',['underscore', 'angular'],
 
 
 
-define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services'],
+define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'app-services', 'angular-cookies'],
 	   function(_, angular, Firebase)
 {
 	angular.module('appConfig', [
 		'appEnvUtils'
 	])
-	.constant('firebaseUrl', 'https://picture-board.firebaseio.com/')
+	.constant('firebaseUrl', 'https://picture-board-new.firebaseio.com/')
 	.constant('envReverence', { backend: ['local', 'firebase'] })
 	.constant('envConfig', { backend: 'firebase' });
 
 	angular.module('appModel', [
+		'appConfig',
 		'firebase',
 	])
-	.factory('posts', function($firebase, firebaseUrl, env) {
+	.factory('posts', function($firebase, $log, firebaseUrl, env) {
 		function makeLocalStorage(callback) {
 			var res =  [
 				{text: 'hello world'},
@@ -35253,6 +35808,10 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'app
 			res.addComment = function(post, comment) {
 				res.addToField(post, 'comments', comment);
 			};
+			res.getBackendName = function() { return 'local'; };
+			res.deleteAll = function() {
+				res.length = 0;
+			};
 			callback(res);
 			return res;
 		}
@@ -35269,9 +35828,14 @@ define('app-main-ctrl',['underscore', 'angular', 'firebase', 'angularfire', 'app
 			res.addComment = function(post, comment) {
 				res.addToField(post, 'comments', comment);
 			};
+			res.getBackendName = function() { return 'firebase'; };
 			res.$on('loaded', function() {
 				callback(res);
 			});
+			res.deleteAll = function() {
+				$log.error('deleteAll is not implemented ' +
+						   'for firebase backend');
+			};
 			return res;
 		}
 		if ( env.backend === 'firebase' ) {

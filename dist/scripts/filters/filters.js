@@ -15,7 +15,7 @@ define(['underscore', 'angular'], function(_, angular) {
 			if (!defaultValue) {
 				defaultValue = '';
 			}
-			if (_(input).isEmpty()) {
+			if (_(input).isEmpty() && !_(input).isNumber()) {
 				return defaultValue;
 			} else {
 				return input;
