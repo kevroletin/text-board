@@ -1,6 +1,7 @@
 'use strict';
 
-define(['underscore', 'angular', 'app-filters'], function(_, angular) {
+define(['underscore', 'angular', 'text!views/paginator.html', 'text!views/expand-input.html', 'app-filters'],
+	   function(_, angular, paginatorHtml, expandableHtml) {
 	return angular.module('appDirectives', [
 		'appFilters'
 	])
@@ -11,7 +12,7 @@ define(['underscore', 'angular', 'app-filters'], function(_, angular) {
 				'myModel': '=',
 				'mySubmit': '&'
 			},
-			templateUrl: 'views/expand-input.html',
+			template: expandableHtml,
 			link: function($scope, elem, attr) {
 				$scope.showEditBox = true;
 				$scope.$watch('showEditBox', function() {
@@ -34,7 +35,7 @@ define(['underscore', 'angular', 'app-filters'], function(_, angular) {
 	.directive('myPaginator', function($log, $document, $timeout) {
 		return {
 			restrict: 'AE',
-			templateUrl: 'views/paginator.html',
+			template: paginatorHtml
 		};
 	});
 });
