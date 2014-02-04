@@ -425,10 +425,10 @@ module.exports = function (grunt) {
 	]);
 
 	grunt.registerTask('test', [
-		'clean:server',
-		'concurrent:test',
-		'autoprefixer',
-		'connect:test',
+//		'clean:server',
+//		'concurrent:test',
+//		'autoprefixer',
+//		'connect:test',
 		'karma'
 	]);
 
@@ -458,5 +458,10 @@ module.exports = function (grunt) {
 		'newer:jshint',
 		'test',
 		'build'
+	]);
+
+	grunt.registerTask('coverage', [
+		'test',
+		'coveralls'
 	]);
 };
