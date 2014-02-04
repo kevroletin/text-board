@@ -40,6 +40,5 @@ define(['underscore',
 		it('missed config falled back to default', function() {
 			want( env.onlyRef ).to.equal( 'onlyRef-1' );
 		});
-
 	});
 });

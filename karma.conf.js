@@ -18,7 +18,8 @@ module.exports = function(config) {
 			/* served by server, loaded by requirejs */
 			{pattern: 'app/**/*.js', included: false},
 			{pattern: 'app/*.js', included: false},
-			{pattern: 'test/**/**.xml', included: false},
+			{pattern: 'app/views/*.html', included: false},
+			{pattern: 'views/*.html', included: false},
 			{pattern: 'test/**/*.js', included: false},
 			{pattern: 'test/*.js', included: false},
 		],

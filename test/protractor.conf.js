@@ -4,7 +4,7 @@ exports.config = {
 	// TODO: share config with Gruntfile
 	//baseUrl: 'http://localhost:9001/',
 	// TODO: make it portable
-	baseUrl: 'http://localhost/wcs-client/app',
+	baseUrl: 'http://localhost/picture-board/app',
 
 	// TODO: make it portable
 	seleniumServerJar: '/usr/lib/node_modules/protractor/selenium/selenium-server-standalone-2.39.0.jar',
