@@ -37,5 +37,26 @@ define(['underscore', 'angular', 'text!views/paginator.html', 'text!views/expand
 			restrict: 'AE',
 			template: paginatorHtml
 		};
+	})
+	.directive('myMarkdown', function ($sanitize) {
+		var Showdown = require('showdown');
+		var converter = new Showdown.converter();
+		return {
+			restrict: 'A',
+			link: function (scope, elem, attr) {
+				scope.$watch(attr.myMarkdown, function (newVal) {
+					/* replace line breaks with a tag to preserve their deletion */
+					newVal = newVal.replace(/(\r\n|\n|\r)/g, '<br>');
+
+					newVal = $sanitize(newVal);
+
+					/* replace tags back with line breaks */
+					newVal = newVal.replace(/<br\/?>/g, '\r\n').replace(/&gt;/g, '>');
+
+					var html = newVal ? converter.makeHtml(newVal) : '';
+					elem.html(html);
+				});
+			}
+		};
 	});
 });
