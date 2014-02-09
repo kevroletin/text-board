@@ -11,7 +11,7 @@
     "Veselin Todorov <hi@vesln.com>",
     "John Firebaugh <john.firebaugh@gmail.com>"
   ],
-  "version": "1.9.0",
+  "version": "1.8.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/chaijs/chai"
@@ -32,11 +32,12 @@
   },
   "devDependencies": {
       "component": "*"
-    , "karma": "0.11.12"
+    , "coveralls": "2.0.16"
+    , "jscoverage": "0.3.7"
+    , "karma": "canary"
     , "karma-mocha": "*"
-    , "karma-sauce-launcher": "0.2.0"
-    , "karma-phantomjs-launcher": "0.1.1"
+    , "karma-sauce-launcher": "git://github.com/embarkmobile/karma-sauce-launcher.git#feature-passfail"
     , "mocha": "1.8.2"
-    , "istanbul": "~0.1.44"
+    , "mocha-lcov-reporter": "0.0.1"
   }
 }
