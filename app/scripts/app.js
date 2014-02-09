@@ -5,6 +5,7 @@ define(['angular',
 		'angular-resource',
 		'angular-cookies',
 		'angular-sanitize',
+		'showdown',
 		'app-main-ctrl',
 		'app-filters',
 		'app-directives'],
@@ -13,7 +14,8 @@ function(angular) {
 		'appMainCtrl',
 		'appDirectives',
 		'appFilters',
-		'ngRoute'
+		'ngRoute',
+		'ngSanitize'
 	])
 	.config(function ($routeProvider) {
 		$routeProvider

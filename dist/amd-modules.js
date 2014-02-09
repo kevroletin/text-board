@@ -17,6 +17,7 @@ require.config({
 		'angular-sanitize': 'bower_components/angular-sanitize/angular-sanitize',
 		'firebase': 'bower_components/firebase/firebase',
 		'angularfire': 'bower_components/angularfire/angularfire',
+		'showdown': 'bower_components/showdown/compressed/showdown',
 		/* application */
 		'app': 'scripts/app',
 		'app-filters': 'scripts/filters/filters',
@@ -45,6 +46,9 @@ require.config({
 		},
 		'angularfire': {
 			deps: ['angular', 'firebase']
+		},
+		'showdown': {
+			exports: "Showdown"
 		}
 	}
 });
