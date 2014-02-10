@@ -56,5 +56,12 @@ define(['underscore', 'angular'], function(_, angular) {
 				return '';
 			}
 		};
+	})
+	.filter('markdown', function() {
+		var Showdown = require('showdown');
+		var converter = new Showdown.converter();
+		return function(input) {
+			return (input ? converter.makeHtml(input) : '');
+		};
 	});
 });
