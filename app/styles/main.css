@@ -82,3 +82,17 @@ div.info {
     margin-top: 10px;
     margin-left: 10px;
 }
+
+.comments-container {
+    margin-left: 30px;
+}
+
+.comment {
+    border: 1px solid #eee;
+    padding: 10px;
+}
+
+.comment img,
+.post img {
+    max-width: 100%;
+}
