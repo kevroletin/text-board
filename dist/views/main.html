@@ -46,8 +46,8 @@
   </small>
 
   <h2  ng-if="x.title">{{x.title}}</h2>
-  <p   ng-if="x.text">
-  	<span my-markdown="x.text" ></span>
+  <p   class="post" ng-if="x.text">
+  	<span ng-bind-html="x.text | markdown"></span>
   </p>
   <pre ng-if="x.code">{{x.code}}</pre>
   <img ng-if="x.img"
@@ -63,9 +63,9 @@
   </p>
 
   <!-- TODO: factor out comments into separate directive -->
-  <div style="margin-left:30px">
-	<p ng-repeat="y in x.comments track by $index">
-		<span my-markdown="y.text"></span>
+  <div class="comments-container">
+	<p class="comment" ng-repeat="y in x.comments track by $index">
+		<span ng-bind-html="y.text | markdown"></span>
 	</p>
 	<textarea class="commentTextarea"
 	          ng-if="x.$id === editCommentId"
