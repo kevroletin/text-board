@@ -36,13 +36,13 @@
 <div ng-repeat-end>
   <small style="float: right">
 	<a href="" ng-click="addToPostField(x,'likedBy')">
-	  perfect{{x.likedBy | lenInBrackets }}</a>
-	<br>
+	  Rocks{{x.likedBy | lenInBrackets }}</a>
+	|
 	<a style="color:black" href="" ng-click="addToPostField(x,'dislikedBy')">
-	  shit{{x.dislikedBy | lenInBrackets }}</a>
-	<br>
+	  Sucks{{x.dislikedBy | lenInBrackets }}</a>
+	|
 	<a style="color:gray" href="" ng-click="addToPostField(x,'deletedBy')">
-	  can't see{{x.deletedBy | lenInBrackets }}</a>
+	  Hide this shit{{x.deletedBy | lenInBrackets }}</a>
   </small>
 
   <h2  ng-if="x.title">{{x.title}}</h2>
