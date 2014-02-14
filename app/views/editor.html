@@ -1,0 +1,16 @@
+<!-- text editor view -->
+<a ng-hide="active"
+   ng-click="Toggle()">Make a comment</a>
+<div ng-show="active">
+	<p>
+		<textarea class="input-form"
+			ng-model="text"
+			ng-blur="Blur()"
+			ng-keydown="KeyDown($event)"></textarea>
+	</p>
+	<p class="buttons-container">
+		<button ng-click="Submit()">Post dat stuff</button>
+		or
+		<a ng-click="Toggle()">Cancel</a>
+	</p>
+</div>

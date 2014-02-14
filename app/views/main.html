@@ -67,18 +67,7 @@
 	<p class="comment" ng-repeat="y in x.comments track by $index">
 		<span ng-bind-html="y.text | markdown"></span>
 	</p>
-	<textarea class="commentTextarea"
-	          ng-if="x.$id === editCommentId"
-			  ng-model="$parent.$parent.newComment.text"
-			  ng-keydown="commentOnCtrlEnter($event, x)"
-			  ng-focus="editCommentFocus()"
-			  ng-blur="editCommentBlur()">
-	</textarea>
-	<button ng-if="x.$id === editCommentId"
-			ng-mousedown="addComment(x)">Post</button>
-	<small><a href=""
-			  ng-if="x.$id !== editCommentId"
-			  ng-mousedown="setEditCommentId(x.$id)">your opinion here</a></small>
+    <div my-editor class="editor" post="x" action="submitPost(text, post)"></div>
   </div>
 </div>
 
