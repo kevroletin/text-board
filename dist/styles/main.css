@@ -102,3 +102,14 @@ div.info {
 .post img {
     max-width: 100%;
 }
+
+/* comments editor styles */
+.exitor p {
+    text-align: center;
+    width: 100%;
+}
+
+.editor textarea {
+    width: 100%;
+    min-height: 10em;
+}

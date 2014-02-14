@@ -119,42 +119,18 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'a
 				$scope.posts.addToField(post, field, $scope.username);
 			}
 		};
-		$scope.commentOnCtrlEnter = function(event, post) {
-			if (event.ctrlKey && event.keyCode === 13) {
-				$scope.addComment(post);
-				$timeout(function() {
-					$document.find('.commentTextarea').focus();
-				});
-			}
-		};
-		$scope.editCommentFocus = function() {
-			if ($scope.hideEditTimeout) {
-				$timeout.cancel($scope.hideEditTimeout);
-			}
-			$scope.hideEditTimeout = null;
-		};
-		$scope.editCommentBlur = function() {
-			if ( _($scope.newComment.text).isEmpty() ) {
-				$scope.hideEditTimeout = $timeout(function() {
-					$scope.editCommentId = '';
-				}, 500);
-			}
-		};
-		$scope.setEditCommentId = function(id) {
-			$scope.editCommentId = id;
-			$timeout(function() {
-				$document.find('.commentTextarea').focus();
-			});
-		};
-		$scope.addComment = function(post) {
-			if ( _($scope.newComment).isEmpty() ) {
+		$scope.submitPost = function(text, post) {
+			if ( !text ) {
 				return;
 			}
-			$scope.posts.addComment(post, $scope.newComment);
-			$scope.newComment = {};
-			$timeout(function() {
-				$document.find('.commentTextarea').focus();
-			});
+			if ( post ) {
+				/* adding comment to post */
+				var comment = {};
+				comment.text = text;
+				$scope.posts.addComment(post, comment);
+			} else {
+				/* adding new post */
+			}
 		};
 	});
 });

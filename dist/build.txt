@@ -14,6 +14,7 @@ bower_components/angularfire/angularfire.js
 bower_components/requirejs-text/text.js
 text!views/paginator.html
 text!views/expand-input.html
+text!views/editor.html
 scripts/filters/filters.js
 scripts/directives/main.js
 scripts/services/main.js
