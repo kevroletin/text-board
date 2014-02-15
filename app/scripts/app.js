@@ -8,14 +8,17 @@ define(['angular',
 		'showdown',
 		'app-main-ctrl',
 		'app-filters',
-		'app-directives'],
+		'app-directives',
+		'editor',
+		],
 function(angular) {
 	return angular.module('app', [
 		'appMainCtrl',
 		'appDirectives',
 		'appFilters',
 		'ngRoute',
-		'ngSanitize'
+		'ngSanitize',
+		'editor',
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
