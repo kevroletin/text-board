@@ -120,7 +120,6 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'a
 			} else {
 				post.comments = [];
 				$scope.posts.addPost(post);
-				console.log('wanna make a new thread');
 				/* adding new post */
 			}
 		};

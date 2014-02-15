@@ -72,9 +72,9 @@ define(['underscore', 'angular',
 						$timeout(function() {
 							scope.$broadcast('focusOn', '');
 						});
-					}
 
-					/* TODO: insert selected text as quote on form open */
+						/* TODO: insert selected text as quote on form open */
+					}
 				};
 				scope.blur = function() {
 					if ( scope.text ) {
