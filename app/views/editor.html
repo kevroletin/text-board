@@ -9,6 +9,20 @@
 			ng-keydown="keyDown($event)"
 			auto-focus></textarea>
 	</p>
+	<table ng-show="enhanced">
+		<tr>
+			<td>Picture:</td>
+			<td><input type="text" ng-model="picture"/></td>
+			<td><button ng-click="clearPicture()">X</button></td>
+		</tr>
+<!--
+		<tr>
+			<td>YouTube:</td>
+			<td><input type="text" ng-model="youtube"/></td>
+			<td><button ng-click="clearYoutube()">X</button></td>
+		</tr>
+-->
+	</table>
 	<p class="buttons-container">
 		<button ng-click="submit()">Post dat stuff</button>
 		or

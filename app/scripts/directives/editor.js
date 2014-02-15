@@ -13,13 +13,17 @@ define(['underscore', 'angular',
 		return {
 			restrict: 'AE',
 			scope: {
-				post: '=',
-				action: '&'
+				parentPost: '=',
+				action: '&',
+				enhanced: '=',
+				collapsable: '='
 			},
 			template: editorHtml,
 			link: function(scope, elem, attr) {
-				scope.active = false;
+				scope.active = !scope.collapsable;
 				scope.text = '';
+				scope.picture = '';
+				scope.youtube = '';
 
 				/* got from http://stackoverflow.com/questions/1064089/inserting-a-text-where-cursor-is-using-javascript-jquery */
 				function insertAtCaret(txtarea,text) {
@@ -59,6 +63,9 @@ define(['underscore', 'angular',
 				}
 
 				scope.toggle = function() {
+					if (!scope.collapsable) {
+						return;
+					}
 					scope.active = !scope.active;
 
 					if (scope.active) {
@@ -73,7 +80,7 @@ define(['underscore', 'angular',
 					if ( scope.text ) {
 						return;
 					}
-					scope.toggle();
+					//scope.toggle();
 				};
 				scope.keyDown = function(event) {
 					if ( (event.ctrlKey || event.metaKey) && event.keyCode === 13) {
@@ -82,15 +89,30 @@ define(['underscore', 'angular',
 					} else if (event.keyCode === 27) {
 						scope.toggle();
 						event.preventDefault();
-					} else if (event.keyCode === 9 ) {
+					} else if ( !(event.ctrlKey || event.metaKey) && event.keyCode === 9 ) {
 						insertAtCaret(event.target, '\t');
 						event.preventDefault();
 					}
 				};
-				scope.submit = function() {
-					scope.action( {text: scope.text, post: scope.post} );
+				scope.cancel = function() {
 					scope.text = '';
+					scope.youtube = '';
+					scope.picture = '';
 					scope.toggle();
+				};
+				scope.submit = function() {
+					var post = {};
+					post.text = scope.text;
+					post.img = scope.picture;
+					post.youtube = scope.youtube;
+					scope.action( {parentPost: scope.parentPost, post: post} );
+					scope.cancel();
+				};
+				scope.clearPicture = function() {
+					scope.picture = '';
+				};
+				scope.clearYoutube = function() {
+					scope.youtube = '';
 				};
 			}
 		};
