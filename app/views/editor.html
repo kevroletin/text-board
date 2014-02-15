@@ -1,16 +1,31 @@
 <!-- text editor view -->
 <a ng-hide="active"
-   ng-click="Toggle()">Make a comment</a>
+   ng-click="toggle()">Make a comment</a>
 <div ng-show="active">
 	<p>
 		<textarea class="input-form"
 			ng-model="text"
-			ng-blur="Blur()"
-			ng-keydown="KeyDown($event)"></textarea>
+			ng-blur="blur()"
+			ng-keydown="keyDown($event)"
+			auto-focus></textarea>
 	</p>
+	<table ng-show="enhanced">
+		<tr>
+			<td>Picture:</td>
+			<td><input type="text" ng-model="picture"/></td>
+			<td><button ng-click="clearPicture()">X</button></td>
+		</tr>
+<!--
+		<tr>
+			<td>YouTube:</td>
+			<td><input type="text" ng-model="youtube"/></td>
+			<td><button ng-click="clearYoutube()">X</button></td>
+		</tr>
+-->
+	</table>
 	<p class="buttons-container">
-		<button ng-click="Submit()">Post dat stuff</button>
+		<button ng-click="submit()">Post dat stuff</button>
 		or
-		<a ng-click="Toggle()">Cancel</a>
+		<a ng-click="toggle()">Cancel</a>
 	</p>
 </div>

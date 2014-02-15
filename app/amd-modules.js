@@ -24,6 +24,7 @@ require.config({
 		'app-directives': 'scripts/directives/main',
 		'app-services': 'scripts/services/main',
 		'app-main-ctrl': 'scripts/controllers/main',
+		'editor': 'scripts/directives/editor',
 	},
 
 	shim: {

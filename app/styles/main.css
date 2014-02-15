@@ -113,3 +113,18 @@ div.info {
     width: 100%;
     min-height: 10em;
 }
+
+.editor input {
+    width: 100%;
+    margin: 0;
+}
+
+.editor table {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.editor.main {
+  margin-bottom: 40px;
+}

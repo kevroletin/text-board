@@ -104,31 +104,22 @@ define(['underscore', 'angular', 'firebase', 'angularfire', 'app-directives', 'a
 				$scope.posts = data;
 			});
 		});
-		$scope.addNewPost = function() {
-			if ($scope.newPost &&
-				!_($scope.newPost).every(_.isEmpty))
-			{
-				$scope.newPost.comments = [];
-				$scope.posts.addPost($scope.newPost);
-				$scope.newPost = null;
-			}
-		};
 		/* used for like, dislike, delete features */
 		$scope.addToPostField = function(post, field) {
 			if (!_(post[field] || []).contains($scope.username)) {
 				$scope.posts.addToField(post, field, $scope.username);
 			}
 		};
-		$scope.submitPost = function(text, post) {
-			if ( !text ) {
+		$scope.submitPost = function(parentPost, post) {
+			if ( !post || !post.text ) {
 				return;
 			}
-			if ( post ) {
+			if ( parentPost ) {
 				/* adding comment to post */
-				var comment = {};
-				comment.text = text;
-				$scope.posts.addComment(post, comment);
+				$scope.posts.addComment(parentPost, post);
 			} else {
+				post.comments = [];
+				$scope.posts.addPost(post);
 				/* adding new post */
 			}
 		};
